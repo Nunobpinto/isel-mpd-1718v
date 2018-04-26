@@ -71,7 +71,7 @@ public class MovieServiceTestForWarGames {
                 .compose(System.out::println)
                 .compose(__ -> count[0]++);
 
-        MovieService movieServiceApi = new MovieService(new MovieWebApi(req));
+        MovieWebApi movieServiceApi = new MovieWebApi(req);
         SearchItemDto [] actorMovs = movieServiceApi.getPersonCreditsCast(4756);
         assertNotNull(actorMovs);
         assertEquals("Inspector Gadget", actorMovs[1].getTitle());

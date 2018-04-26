@@ -108,8 +108,7 @@ public class MovieService {
                 dto.getTitle(),
                 dto.getReleaseDate(),
                 dto.getVoteAverage(),
-                //() -> getMovie(dto.getId())
-                this.getMovieCast(dto.getId())
+                () -> getMovie(dto.getId())
         );
     }
 
@@ -121,7 +120,6 @@ public class MovieService {
                 dto.getOverview(),
                 dto.getVoteAverage(),
                 dto.getReleaseDate(),
-                //() -> this.getMovieCast(dto.getId())
                 this.getMovieCast(dto.getId())
 
         );
@@ -133,8 +131,7 @@ public class MovieService {
                 movId,
                 dto.getCharacter(),
                 dto.getName(),
-                //() -> getActor(dto.getId(), "")
-                this.getActor(dto.getId(), "")
+                () -> getActor(dto.getId(), "")
         );
     }
 }
