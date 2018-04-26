@@ -1,7 +1,7 @@
 package movlazy.model;
 
-import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 
 /**
@@ -15,7 +15,7 @@ public class Movie {
     private final String overview;
     private final double vote_average;
     private final String release_date;
-    private final Supplier<List<CastItem>> cast;
+    private final Supplier<Stream<CastItem>> cast;
 
     public Movie(
             int id,
@@ -24,7 +24,7 @@ public class Movie {
             String overview,
             double vote_average,
             String release_date,
-            Supplier<List<CastItem>> cast)
+            Supplier<Stream<CastItem>> cast)
     {
         this.id = id;
         this.original_title = original_title;
@@ -59,8 +59,8 @@ public class Movie {
         return release_date;
     }
 
-    public Iterable<CastItem> getCast() {
-        return cast.get();
+    public Supplier<Stream<CastItem>> getCast() {
+        return cast;
     }
 
     @Override

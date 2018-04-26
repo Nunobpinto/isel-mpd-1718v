@@ -49,7 +49,7 @@ public class MovieServiceTestForFurious {
                 .compose(__ -> count[0]++);
 
         MovieService movieServiceApi = new MovieService(new MovieWebApi(req));
-        Iterable<SearchItem> actorMovs = movieServiceApi.getActorCreditsCast(1461);
+        Iterable<SearchItem> actorMovs = movieServiceApi.getPersonCreditsCast(1461);
         assertNotNull(actorMovs);
         assertEquals("O Brother, Where Art Thou?", actorMovs.iterator().next().getTitle());
         assertEquals(1, count[0]);

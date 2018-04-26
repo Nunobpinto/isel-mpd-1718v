@@ -20,17 +20,18 @@ package test;
 import com.google.common.util.concurrent.RateLimiter;
 import movlazy.MovieService;
 import movlazy.MovieWebApi;
+import movlazy.dto.SearchItemDto;
 import movlazy.model.CastItem;
 import movlazy.model.SearchItem;
 import org.junit.jupiter.api.Test;
 import util.FileRequest;
 import util.IRequest;
-import util.Queries;
+
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static util.Queries.filter;
-import static util.Queries.skip;
 
 
 public class MovieServiceTestForWarGames {
@@ -38,10 +39,10 @@ public class MovieServiceTestForWarGames {
     @Test
     public void testSearchMovieInSinglePage() {
         MovieService movieApi = new MovieService(new MovieWebApi(new FileRequest().compose(System.out::println)));
-        Iterable<SearchItem> movies = movieApi.search("War Games");
-        SearchItem m = movies.iterator().next();
+        Supplier<Stream<SearchItem>> movies = movieApi.search("War Games");
+        SearchItem m = movies.get().findFirst().get();
         assertEquals("War Games: The Dead Code", m.getTitle());
-        assertEquals(6, Queries.count(movies));// number of returned movies
+        assertEquals(6, movies.get().count());// number of returned movies
     }
 
     @Test
@@ -52,13 +53,14 @@ public class MovieServiceTestForWarGames {
                 .compose(__ -> count[0]++);
 
         MovieService movieApi = new MovieService(new MovieWebApi(req));
-        Iterable<SearchItem> movies = movieApi.search("candle");
+        Supplier<Stream<SearchItem>> movies = movieApi.search("candle");
         assertEquals(0, count[0]);
-        SearchItem candleshoe = filter(m -> m.getTitle().equals("Candleshoe"), movies)
-                .iterator()
-                .next();
+        SearchItem candleshoe = movies.get()
+                .filter(m -> m.getTitle().equals("Candleshoe"))
+                .findFirst()
+                .get();
         assertEquals(2, count[0]); // Found on 2nd page
-        assertEquals(59, Queries.count(movies));// Number of returned movies
+        assertEquals(59, movies.get().count());// Number of returned movies
         assertEquals(6, count[0]); // 4 requests more to consume all pages
     }
 
@@ -70,9 +72,9 @@ public class MovieServiceTestForWarGames {
                 .compose(__ -> count[0]++);
 
         MovieService movieServiceApi = new MovieService(new MovieWebApi(req));
-        Iterable<SearchItem> actorMovs = movieServiceApi.getActorCreditsCast(4756);
+        SearchItemDto [] actorMovs = movieServiceApi.getPersonCreditsCast(4756);
         assertNotNull(actorMovs);
-        assertEquals("Inspector Gadget", actorMovs.iterator().next().getTitle());
+        assertEquals("Inspector Gadget", actorMovs[1].getTitle());
         assertEquals(1, count[0]); // 1 request
     }
 
@@ -87,17 +89,16 @@ public class MovieServiceTestForWarGames {
 
         MovieService movieService = new MovieService(new MovieWebApi(req));
 
-        Iterable<SearchItem> movies = movieService.search("War Games");
-        assertEquals(6, Queries.count(movies));// number of returned movies
+        Supplier<Stream<SearchItem>> movies = movieService.search("War Games");
+        assertEquals(6, movies.get().count());// number of returned movies
         assertEquals(2, count[0]);         // 2 requests to consume all pages
         /**
          * Iterable<SearchItem> is Lazy and without cache.
          */
-        SearchItem warGames = filter(
-                m -> m.getTitle().equals("WarGames"),
-                movies)
-                .iterator()
-                .next();
+        SearchItem warGames = movies.get()
+                .filter(m -> m.getTitle().equals("WarGames"))
+                .findFirst()
+                .get();
         assertEquals(3, count[0]); // 1 more request for 1st page
         assertEquals(860, warGames.getId());
         assertEquals("WarGames", warGames.getTitle());
@@ -113,18 +114,19 @@ public class MovieServiceTestForWarGames {
          * getCast() relation Movie --->* CastItem is Lazy and
          * supported on Supplier<List<CastItem>> with Cache
          */
-        Iterable<CastItem> warGamesCast = warGames.getDetails().getCast();
-        assertEquals(5, count[0]); // 1 more request to get the Movie Cast
+        Supplier<Stream<CastItem>> warGamesCast = warGames.getDetails().getCast();
+        assertEquals(4, count[0]); // No requests to get the Movie Cast => It is Lazy
         assertEquals("Matthew Broderick",
-                warGamesCast.iterator().next().getName());
-        assertEquals(5, count[0]); // NO more request. It is already in cache
+                warGamesCast.get().findFirst().get().getName());
+        assertEquals(5, count[0]); // 1 more request for warGamesCast.get().
+        Stream <CastItem> iter = warGamesCast.get().skip(2);
         assertEquals("Ally Sheedy",
-                skip(warGamesCast, 2).iterator().next().getName());
+                iter.findFirst().get().getName());
         assertEquals(5, count[0]); // NO more request. It is already in cache
         /**
          * CastItem ---> Actor is Lazy and with Cache for Person but No cache for actor credits
          */
-        CastItem broderick = warGames.getDetails().getCast().iterator().next();
+        CastItem broderick = warGames.getDetails().getCast().get().findFirst().get();
         assertEquals(5, count[0]); // NO more request. It is already in cache
         assertEquals("New York City, New York, USA",
                 broderick.getActor().getPlaceOfBirth());
@@ -133,23 +135,23 @@ public class MovieServiceTestForWarGames {
                 broderick.getActor().getPlaceOfBirth());
         assertEquals(6, count[0]); // NO more request. It is already in cache
         assertEquals("Inspector Gadget",
-                broderick.getActor().getMovies().iterator().next().getTitle());
+                broderick.getActor().getMovies().get().findFirst().get().getTitle());
         assertEquals(7, count[0]); // 1 more request for Actor Credits
         assertEquals("Inspector Gadget",
-                broderick.getActor().getMovies().iterator().next().getTitle());
+                broderick.getActor().getMovies().get().findFirst().get().getTitle());
         assertEquals(8, count[0]); // 1 more request. Actor Cast is not in cache
 
         /**
          * Check Cache from the beginning
          */
         assertEquals("New York City, New York, USA",
-                movieService.getMovie(860).getCast().iterator().next().getActor().getPlaceOfBirth());
+                movieService.getMovie(860).getCast().get().findFirst().get().getActor().getPlaceOfBirth());
         assertEquals(8, count[0]); // No more requests for the same getMovie.
         /*
          * Now get a new Film
          */
         assertEquals("Predator",
-                movieService.getMovie(861).getCast().iterator().next().getActor().getMovies().iterator().next().getTitle());
+                movieService.getMovie(861).getCast().get().findFirst().get().getActor().getMovies().get().findFirst().get().getTitle());
         assertEquals(12, count[0]); // 1 request for Movie + 1 for CastItems + 1 Person + 1 Actor Credits
     }
 
@@ -164,8 +166,8 @@ public class MovieServiceTestForWarGames {
 
         MovieService movapi = new MovieService(new MovieWebApi(req));
 
-        Iterable<SearchItem> vs = movapi.search("fire");
-        assertEquals(1170, Queries.count(vs));// number of returned movies
-        assertEquals(60, count[0]);         // 60 requests to consume all pages
+        Stream<SearchItem> vs = movapi.search("fire").get();
+        assertEquals(1170, vs.count());// number of returned movies
+        assertEquals(60, count[0]);    // 2 requests to consume all pages
     }
 }

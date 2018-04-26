@@ -17,17 +17,17 @@
 
 package movlazy;
 
-import com.google.common.collect.Lists;
+import java.util.HashMap;
+import java.util.Map;
+
 import movlazy.dto.*;
 import movlazy.model.Actor;
 import movlazy.model.CastItem;
 import movlazy.model.Movie;
 import movlazy.model.SearchItem;
-import util.Queries;
 
-import java.util.*;
-
-import static util.Queries.*;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * @author Miguel Gamboa
@@ -37,28 +37,29 @@ public class MovieService {
 
     private final MovieWebApi movieWebApi;
     private final Map<Integer, Movie> movies = new HashMap<>();
-    private final Map<Integer, List<CastItem>> cast = new HashMap<>();
+    private final Map<Integer, Supplier<Stream<CastItem>>> cast = new HashMap<>();
     private final Map<Integer, Actor> actors = new HashMap<>();
 
     public MovieService(MovieWebApi movieWebApi) {
         this.movieWebApi = movieWebApi;
     }
 
-    public Iterable<SearchItem> search(String name) {
-        return map(                     // Iterable<SearchItem>
-                this::parseSearchItemDto,
-                flatMap(             // Iterable<SearchItemDto>
-                        Queries::of,
-                        takeWhile(       // Iterable<SearchItemDto[]>
-                                movs -> movs.length != 0,
-                                map(         // Iterable<SearchItemDto[]>
-                                        page -> movieWebApi.search(name, page),
-                                        iterate( // Iterable<Integer>
-                                                0,
-                                                prev -> ++prev)))));
+    public Supplier<Stream<SearchItem>> search(String name) {
+//        return map(                     // Iterable<SearchItem>
+//                this::parseSearchItemDto,
+//                flatMap(             // Iterable<SearchItemDto>
+//                        Queries::of,
+//                        takeWhile(       // Iterable<SearchItemDto[]>
+//                                movs -> movs.length != 0,
+//                                map(         // Iterable<SearchItemDto[]>
+//                                        page -> movieWebApi.search(name, page),
+//                                        iterate( // Iterable<Integer>
+//                                                0,
+//                                                prev -> ++prev)))));
+        throw new UnsupportedOperationException();
     }
 
-    public Iterable<SearchItem> getActorCreditsCast(int actorId) {
+    public Supplier<Stream<SearchItem>> getPersonCreditsCast(int actorId) {
         return map(
                 this::parseSearchItemDto,
                 of(() -> movieWebApi.getPersonCreditsCast(actorId))
@@ -72,7 +73,7 @@ public class MovieService {
         });
     }
 
-    public List<CastItem> getMovieCast(int movId) {
+    public Supplier<Stream<CastItem>> getMovieCast(int movId) {
         return cast.computeIfAbsent(movId, id -> {
             CastItemDto[] cast = movieWebApi.getMovieCast(id);
             return Lists.newArrayList(
@@ -97,7 +98,7 @@ public class MovieService {
                 dto.getName(),
                 dto.getPlace_of_birth(),
                 dto.getBiography(),
-                getActorCreditsCast(dto.getId())
+                getPersonCreditsCast(dto.getId())
         );
     }
 
@@ -107,7 +108,8 @@ public class MovieService {
                 dto.getTitle(),
                 dto.getReleaseDate(),
                 dto.getVoteAverage(),
-                () -> getMovie(dto.getId())
+                //() -> getMovie(dto.getId())
+                this.getMovieCast(dto.getId())
         );
     }
 
@@ -119,7 +121,9 @@ public class MovieService {
                 dto.getOverview(),
                 dto.getVoteAverage(),
                 dto.getReleaseDate(),
-                () -> this.getMovieCast(dto.getId())
+                //() -> this.getMovieCast(dto.getId())
+                this.getMovieCast(dto.getId())
+
         );
     }
 
@@ -129,7 +133,8 @@ public class MovieService {
                 movId,
                 dto.getCharacter(),
                 dto.getName(),
-                () -> getActor(dto.getId(), "")
+                //() -> getActor(dto.getId(), "")
+                this.getActor(dto.getId(), "")
         );
     }
 }

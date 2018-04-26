@@ -1,5 +1,8 @@
 package movlazy.model;
 
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
 /**
  * @author Miguel Gamboa
  *         created on 04-08-2017
@@ -7,12 +10,12 @@ package movlazy.model;
 public class Actor {
     private final int id;
     private final String name;
-    private final Iterable<SearchItem> movies;
+    private final Supplier<Stream<SearchItem>> movies;
     private final String placeOfBirth;
     private final String biography;
 
 
-    public Actor(int id, String name, String placeOfBirth, String biography, Iterable<SearchItem> movies) {
+    public Actor(int id, String name, String placeOfBirth, String biography, Supplier<Stream<SearchItem>> movies) {
         this.id = id;
         this.name = name;
         this.movies = movies;
@@ -36,7 +39,7 @@ public class Actor {
         return biography;
     }
 
-    public Iterable<SearchItem> getMovies() {
+    public Supplier<Stream<SearchItem>> getMovies() {
         return movies;
     }
 
