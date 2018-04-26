@@ -21,9 +21,12 @@ import com.google.gson.Gson;
 import movlazy.dto.*;
 import util.IRequest;
 
+import javax.swing.plaf.SplitPaneUI;
 import java.io.*;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static util.Queries.*;
 
@@ -123,7 +126,7 @@ public class MovieWebApi {
     }
 
     private String getJsonBody(String path) {
-        Iterable<String> src = req.getBody(path);
-        return reduce(src, "", (prev, curr) -> prev + curr);
+        return req.getBody(path).get().reduce("", (prev, curr) -> prev + curr);
     }
+
 }

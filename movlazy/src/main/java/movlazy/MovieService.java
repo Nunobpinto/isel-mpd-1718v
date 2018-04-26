@@ -60,10 +60,7 @@ public class MovieService {
     }
 
     public Supplier<Stream<SearchItem>> getPersonCreditsCast(int actorId) {
-        return map(
-                this::parseSearchItemDto,
-                of(() -> movieWebApi.getPersonCreditsCast(actorId))
-        );
+        return () -> Stream.of(movieWebApi.getPersonCreditsCast(actorId)).map(this::parseSearchItemDto);
     }
 
     public Movie getMovie(int movId) {
@@ -74,15 +71,21 @@ public class MovieService {
     }
 
     public Supplier<Stream<CastItem>> getMovieCast(int movId) {
-        return cast.computeIfAbsent(movId, id -> {
-            CastItemDto[] cast = movieWebApi.getMovieCast(id);
-            return Lists.newArrayList(
-                    map(
-                            (dto) -> parseCastItemDto(dto, id),
-                            of(cast)
-                    )
-            );
-        });
+        return () ->
+                cast.computeIfAbsent(movId, id ->
+                                 Stream.of(
+                                        movieWebApi.getMovieCast(id)
+                                ).map(dto -> parseCastItemDto(dto, id)))
+
+//        return cast.computeIfAbsent(movId, id -> {
+//            CastItemDto[] cast = movieWebApi.getMovieCast(id);
+//            return Lists.newArrayList(
+//                    map(
+//                            (dto) -> parseCastItemDto(dto, id),
+//                            of(cast)
+//                    )
+//            );
+//        });
     }
 
     public Actor getActor(int actorId, String name) {

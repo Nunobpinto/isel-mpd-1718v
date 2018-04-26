@@ -18,13 +18,15 @@
 package util;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
  * @author Miguel Gamboa
  *         created on 03-03-2017
  */
 public interface IRequest {
-    Iterable<String> getBody(String path);
+    Supplier<Stream<String>> getBody(String path);
 
     public default IRequest compose(Consumer<String> cons) {
         return path -> {
