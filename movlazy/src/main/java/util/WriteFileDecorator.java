@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static util.Queries.reduce;
 
@@ -15,10 +17,10 @@ public class WriteFileDecorator implements IRequest {
     }
 
     @Override
-    public Iterable<String> getBody(String path) {
-        Iterable<String> body = request.getBody(path);
+    public Supplier<Stream<String>> getBody(String path) {
+        Supplier<Stream<String>> body = request.getBody(path);
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(createPath(path)))) {
-            writer.write(reduce(body, "", (prev, curr) -> prev + curr));
+            //writer.write(reduce(body, "", (prev, curr) -> prev + curr));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -25,6 +25,7 @@ import movlazy.model.Actor;
 import movlazy.model.CastItem;
 import movlazy.model.Movie;
 import movlazy.model.SearchItem;
+import util.Cache;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -45,6 +46,13 @@ public class MovieService {
     }
 
     public Supplier<Stream<SearchItem>> search(String name) {
+        return () -> Stream.iterate(0, prev -> ++prev)
+                .map(page -> movieWebApi.search(name, page))
+
+                .takeWhile(movs -> movs.length != 0)
+                .flatMap(Stream::of)
+                .map(this::parseSearchItemDto);
+
 //        return map(                     // Iterable<SearchItem>
 //                this::parseSearchItemDto,
 //                flatMap(             // Iterable<SearchItemDto>
@@ -55,8 +63,12 @@ public class MovieService {
 //                                        page -> movieWebApi.search(name, page),
 //                                        iterate( // Iterable<Integer>
 //                                                0,
-//                                                prev -> ++prev)))));
-        throw new UnsupportedOperationException();
+//                                                prev -> ++prev)
+//
+//                                )
+//                        )
+//                )
+//        );
     }
 
     public Supplier<Stream<SearchItem>> getPersonCreditsCast(int actorId) {
@@ -71,21 +83,11 @@ public class MovieService {
     }
 
     public Supplier<Stream<CastItem>> getMovieCast(int movId) {
-        return () ->
-                cast.computeIfAbsent(movId, id ->
-                                 Stream.of(
-                                        movieWebApi.getMovieCast(id)
-                                ).map(dto -> parseCastItemDto(dto, id)))
-
-//        return cast.computeIfAbsent(movId, id -> {
-//            CastItemDto[] cast = movieWebApi.getMovieCast(id);
-//            return Lists.newArrayList(
-//                    map(
-//                            (dto) -> parseCastItemDto(dto, id),
-//                            of(cast)
-//                    )
-//            );
-//        });
+        return cast.computeIfAbsent(movId, id ->
+                Cache.of(
+                        () -> Stream.of(movieWebApi.getMovieCast(id))
+                                .map(dto -> parseCastItemDto(dto, id))
+                ));
     }
 
     public Actor getActor(int actorId, String name) {

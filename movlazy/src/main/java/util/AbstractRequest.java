@@ -1,7 +1,5 @@
 package util;
 
-import util.iterator.InputStreamLineIterator;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
