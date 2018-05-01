@@ -12,18 +12,11 @@ public class TakeWhileSpliterator<T> extends Spliterators.AbstractSpliterator<T>
     private final Spliterator<T> splitr;
     private Predicate<T> predicate;
 
-    protected TakeWhileSpliterator(Spliterator<T> src, int additionalCharacteristics) {
-        super(src.estimateSize(), additionalCharacteristics);
+    public TakeWhileSpliterator(Spliterator<T> src, Predicate<T> predicate) {
+        super(src.estimateSize(), DISTINCT | SIZED | NONNULL | ORDERED);
         this.splitr = src;
+        this.predicate = predicate;
         stillGoing = true;
-    }
-
-    public <T> Spliterator<T> takeWhile(Spliterator<T> splitr, Predicate<? super T> predicate) {
-
-    }
-
-    public <T> Stream<T> takeWhile(Stream<T> stream, Predicate<? super T> predicate) {
-        return StreamSupport.stream(takeWhile(stream.spliterator(), predicate), false);
     }
 
     @Override
@@ -31,7 +24,7 @@ public class TakeWhileSpliterator<T> extends Spliterators.AbstractSpliterator<T>
         if (stillGoing) {
             boolean hadNext = splitr.tryAdvance(elem -> {
                 if (predicate.test(elem)) {
-                    consumer.accept(elem);
+                    action.accept(elem);
                 } else {
                     stillGoing = false;
                 }

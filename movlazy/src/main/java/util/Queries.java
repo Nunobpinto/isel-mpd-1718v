@@ -5,12 +5,15 @@ import util.iterator.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Miguel Gamboa
@@ -139,6 +142,18 @@ public class Queries {
      */
     public static <T> Iterable<T> takeWhile(Predicate<T> p, Iterable<T> src) {
         return () -> new TakeWhileIterator(p, src);
+    }
+
+    /**
+     * Returns a new Spliterator consisting of the longest prefix of elements
+     * taken from the src Stream that match the given predicate.
+     */
+    public static <T> Stream<T> takeWhile (Stream<T> stream, Predicate<? super T> predicate) {
+        return StreamSupport.stream(takeWhile(stream.spliterator(), predicate), false);
+    }
+
+    public static <T> Spliterator<T> takeWhile(Spliterator<T> splitr, Predicate<? super T> predicate) {
+        return new TakeWhileSpliterator(splitr, predicate);
     }
 
     /**

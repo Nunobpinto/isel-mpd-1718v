@@ -20,6 +20,8 @@ package movlazy;
 import java.util.HashMap;
 import java.util.Map;
 
+import util.Queries;
+
 import movlazy.dto.*;
 import movlazy.model.Actor;
 import movlazy.model.CastItem;
@@ -46,29 +48,13 @@ public class MovieService {
     }
 
     public Supplier<Stream<SearchItem>> search(String name) {
-        return () -> Stream.iterate(0, prev -> ++prev)
-                .map(page -> movieWebApi.search(name, page))
-
-                .takeWhile(movs -> movs.length != 0)
-                .flatMap(Stream::of)
-                .map(this::parseSearchItemDto);
-
-//        return map(                     // Iterable<SearchItem>
-//                this::parseSearchItemDto,
-//                flatMap(             // Iterable<SearchItemDto>
-//                        Queries::of,
-//                        takeWhile(       // Iterable<SearchItemDto[]>
-//                                movs -> movs.length != 0,
-//                                map(         // Iterable<SearchItemDto[]>
-//                                        page -> movieWebApi.search(name, page),
-//                                        iterate( // Iterable<Integer>
-//                                                0,
-//                                                prev -> ++prev)
-//
-//                                )
-//                        )
-//                )
-//        );
+        return () ->
+                Queries.takeWhile(
+                        Stream.iterate(1, prev -> ++prev).map(page -> movieWebApi.search(name, page)),
+                        movs -> movs.length != 0
+                )
+                        .flatMap(Stream::of)
+                        .map(this::parseSearchItemDto);
     }
 
     public Supplier<Stream<SearchItem>> getPersonCreditsCast(int actorId) {

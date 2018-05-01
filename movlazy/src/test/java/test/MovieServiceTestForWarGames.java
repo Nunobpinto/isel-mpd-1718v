@@ -74,7 +74,7 @@ public class MovieServiceTestForWarGames {
         MovieWebApi movieServiceApi = new MovieWebApi(req);
         SearchItemDto [] actorMovs = movieServiceApi.getPersonCreditsCast(4756);
         assertNotNull(actorMovs);
-        assertEquals("Inspector Gadget", actorMovs[1].getTitle());
+        assertEquals("Inspector Gadget", actorMovs[0].getTitle());
         assertEquals(1, count[0]); // 1 request
     }
 
@@ -107,15 +107,15 @@ public class MovieServiceTestForWarGames {
          * getDetails() relation SearchItem ---> Movie is Lazy and supported on Supplier<Movie> with Cache
          */
         assertEquals("WarGames", warGames.getDetails().getOriginalTitle());
-        assertEquals(4, count[0]); // 1 more request to get the Movie
+        assertEquals(5, count[0]); // 1 more request to get the Movie
         assertEquals("Is it a game, or is it real?", warGames.getDetails().getTagline());
-        assertEquals(4, count[0]); // NO more request. It is already in cache
+        assertEquals(5, count[0]); // NO more request. It is already in cache
         /**
          * getCast() relation Movie --->* CastItem is Lazy and
          * supported on Supplier<List<CastItem>> with Cache
          */
         Supplier<Stream<CastItem>> warGamesCast = warGames.getDetails().getCast();
-        assertEquals(4, count[0]); // No requests to get the Movie Cast => It is Lazy
+        assertEquals(5, count[0]); // No requests to get the Movie Cast => It is Lazy
         assertEquals("Matthew Broderick",
                 warGamesCast.get().findFirst().get().getName());
         assertEquals(5, count[0]); // 1 more request for warGamesCast.get().

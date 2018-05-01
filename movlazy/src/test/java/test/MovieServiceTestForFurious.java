@@ -2,25 +2,29 @@ package test;
 
 import movlazy.MovieService;
 import movlazy.MovieWebApi;
+import movlazy.dto.SearchItemDto;
 import movlazy.model.CastItem;
 import movlazy.model.SearchItem;
 import org.junit.jupiter.api.Test;
 import util.*;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static util.Queries.filter;
-import static util.Queries.skip;
 
 public class MovieServiceTestForFurious {
 
     @Test
     public void testSearchMovieInSinglePage() {
         MovieService movieApi = new MovieService(new MovieWebApi(new FileRequest().compose(System.out::println)));
-        Iterable<SearchItem> movies = movieApi.search("Furious");
-        SearchItem m = movies.iterator().next();
+        Supplier<Stream<SearchItem>> movies = movieApi.search("Furious");
+        SearchItem m = movies.get().findFirst().get();
         assertEquals("Furious 7", m.getTitle());
-        assertEquals(42, Queries.count(movies));
+        assertEquals(42, movies.get().count());
     }
 
     @Test
@@ -31,13 +35,14 @@ public class MovieServiceTestForFurious {
                 .compose(__ -> count[0]++);
 
         MovieService movieApi = new MovieService(new MovieWebApi(req));
-        Iterable<SearchItem> movies = movieApi.search("batman");
+        Supplier<Stream<SearchItem>> movies = movieApi.search("batman");
         assertEquals(0, count[0]);
-        SearchItem batmanAndrobin = filter(m -> m.getTitle().equals("Batman & Robin"), movies)
-                .iterator()
-                .next();
+        SearchItem batmanAndrobin = movies.get()
+                .filter(m -> m.getTitle().equals("Batman & Robin"))
+                .findFirst()
+                .get();
         assertEquals(1, count[0]);
-        assertEquals(108, Queries.count(movies));
+        assertEquals(108, movies.get().count());
         assertEquals(8, count[0]);
     }
 
@@ -48,10 +53,10 @@ public class MovieServiceTestForFurious {
                 .compose(System.out::println)
                 .compose(__ -> count[0]++);
 
-        MovieService movieServiceApi = new MovieService(new MovieWebApi(req));
-        Iterable<SearchItem> actorMovs = movieServiceApi.getPersonCreditsCast(1461);
+        MovieWebApi movieServiceApi = new MovieWebApi(req);
+        SearchItemDto [] actorMovs = movieServiceApi.getPersonCreditsCast(1461);
         assertNotNull(actorMovs);
-        assertEquals("O Brother, Where Art Thou?", actorMovs.iterator().next().getTitle());
+        assertEquals("O Brother, Where Art Thou?", actorMovs[0].getTitle());
         assertEquals(1, count[0]);
     }
 
@@ -64,44 +69,35 @@ public class MovieServiceTestForFurious {
 
         MovieService movieService = new MovieService(new MovieWebApi(req));
 
-        Iterable<SearchItem> movies = movieService.search("Furious");
-        assertEquals(42, Queries.count(movies));
+        Supplier<Stream<SearchItem>> movies = movieService.search("Furious");
+        assertEquals(42, movies.get().count());
         assertEquals(4, count[0]);
-        /**
-         * Iterable<SearchItem> is Lazy and without cache.
-         */
-        SearchItem furious = filter(
-                m -> m.getTitle().equals("Furious"),
-                movies)
-                .iterator()
-                .next();
+
+        SearchItem furious = movies.get()
+                .filter(m -> m.getTitle().equals("Furious"))
+                .findFirst()
+                .get();
         assertEquals(5, count[0]);
         assertEquals(167104, furious.getId());
         assertEquals("Furious", furious.getTitle());
         assertEquals(5, count[0]);
-        /**
-         * getDetails() relation SearchItem ---> Movie is Lazy and supported on Supplier<Movie> with Cache
-         */
+
         assertEquals("Furious", furious.getDetails().getOriginalTitle());
-        assertEquals(6, count[0]);
+        assertEquals(7, count[0]);
         assertEquals("", furious.getDetails().getTagline());
-        assertEquals(6, count[0]);
-        /**
-         * getCast() relation Movie --->* CastItem is Lazy and
-         * supported on Supplier<List<CastItem>> with Cache
-         */
-        Iterable<CastItem> furiousCast = furious.getDetails().getCast();
+        assertEquals(7, count[0]);
+
+        Supplier<Stream<CastItem>> furiousCast = furious.getDetails().getCast();
         assertEquals(7, count[0]);
         assertEquals("Simon Rhee",
-                furiousCast.iterator().next().getName());
+                furiousCast.get().findFirst().get().getName());
         assertEquals(7, count[0]);
+        Stream<CastItem> iter = furiousCast.get().skip(2);
         assertEquals("Howard Jackson ",
-                skip(furiousCast, 2).iterator().next().getName());
+                iter.findFirst().get().getName());
         assertEquals(7, count[0]);
-        /**
-         * CastItem ---> Actor is Lazy and with Cache for Person but No cache for actor credits
-         */
-        CastItem simon = furious.getDetails().getCast().iterator().next();
+
+        CastItem simon = furious.getDetails().getCast().get().findFirst().get();
         assertEquals(7, count[0]);
         assertEquals("San Jose, California, USA",
                 simon.getActor().getPlaceOfBirth());
@@ -110,23 +106,18 @@ public class MovieServiceTestForFurious {
                 simon.getActor().getPlaceOfBirth());
         assertEquals(8, count[0]);
         assertEquals("Best of the Best 2",
-                simon.getActor().getMovies().iterator().next().getTitle());
+                simon.getActor().getMovies().get().findFirst().get().getTitle());
         assertEquals(9, count[0]);
         assertEquals("Best of the Best 2",
-                simon.getActor().getMovies().iterator().next().getTitle());
+                simon.getActor().getMovies().get().findFirst().get().getTitle());
         assertEquals(10, count[0]);
 
-        /**
-         * Check Cache from the beginning
-         */
         assertEquals("San Jose, California, USA",
-                movieService.getMovie(167104).getCast().iterator().next().getActor().getPlaceOfBirth());
+                movieService.getMovie(167104).getCast().get().findFirst().get().getActor().getPlaceOfBirth());
         assertEquals(10, count[0]);
-        /*
-         * Now get a new Film
-         */
+
         assertEquals("Apocalypse Now",
-                movieService.getMovie(238).getCast().iterator().next().getActor().getMovies().iterator().next().getTitle());
+                movieService.getMovie(238).getCast().get().findFirst().get().getActor().getMovies().get().findFirst().get().getTitle());
         assertEquals(14, count[0]);
     }
 
@@ -139,8 +130,8 @@ public class MovieServiceTestForFurious {
 
         MovieService movapi = new MovieService(new MovieWebApi(req));
 
-        Iterable<SearchItem> vs = movapi.search("where");
-        assertEquals(567, Queries.count(vs));
+        Stream<SearchItem> vs = movapi.search("where").get();
+        assertEquals(567, vs.count());
         assertEquals(30, count[0]);
     }
 }
