@@ -2,12 +2,12 @@ package movlazy.dto;
 
 public class MovieCreditsDto {
     private final int id;
-    private final CastItemDto[] cast;
+    private final CastItemDto[] credit;
     private final CrewItemDto[] crew;
 
-    public MovieCreditsDto(int movieId, CastItemDto[] cast, CrewItemDto[] crew) {
+    public MovieCreditsDto(int movieId, CastItemDto[] credit, CrewItemDto[] crew) {
         this.id = movieId;
-        this.cast = cast;
+        this.credit = credit;
         this.crew = crew;
     }
 
@@ -15,9 +15,7 @@ public class MovieCreditsDto {
         return id;
     }
 
-    public CastItemDto[] getCast() {
-        return cast;
-    }
+    public CastItemDto[] getCredit() { return credit; }
 
     public CrewItemDto[] getCrew() {
         return crew;
@@ -27,7 +25,7 @@ public class MovieCreditsDto {
     public String toString() {
         return "MovieCreditsDto{" +
                 "id=" + id +
-                ", cast='" + cast.toString() +
+                ", cast='" + credit.toString() +
                 ", crew='" + crew.toString() + '\'' +
                 '}';
     }

@@ -15,7 +15,7 @@ public class Movie {
     private final String overview;
     private final double vote_average;
     private final String release_date;
-    private final Supplier<Stream<Credit>> cast;
+    private final Supplier<Stream<Credits>> credit;
 
     public Movie(
             int id,
@@ -24,7 +24,7 @@ public class Movie {
             String overview,
             double vote_average,
             String release_date,
-            Supplier<Stream<Credit>> cast)
+            Supplier<Stream<Credits>> credit)
     {
         this.id = id;
         this.original_title = original_title;
@@ -32,7 +32,7 @@ public class Movie {
         this.overview = overview;
         this.vote_average = vote_average;
         this.release_date = release_date;
-        this.cast = cast;
+        this.credit = credit;
     }
 
     public int getId() {
@@ -59,8 +59,8 @@ public class Movie {
         return release_date;
     }
 
-    public Supplier<Stream<Credit>> getCast() {
-        return cast;
+    public Supplier<Stream<Credits>> getCredit() {
+        return credit;
     }
 
     @Override

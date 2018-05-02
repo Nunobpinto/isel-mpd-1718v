@@ -21,14 +21,9 @@ import com.google.gson.Gson;
 import movlazy.dto.*;
 import util.IRequest;
 
-import javax.swing.plaf.SplitPaneUI;
 import java.io.*;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
-import static util.Queries.*;
 
 /**
  * @author Miguel Gamboa
@@ -99,11 +94,10 @@ public class MovieWebApi {
     /**
      * E.g. https://api.themoviedb.org/3/movie/860/credits?api_key=***************
      */
-    public CastItemDto[] getMovieCast(int movieId) {
+    public MovieCreditsDto getMovieCredits(int movieId) {
         String path = MessageFormat.format(MOVIE_DB_HOST + MOVIE_DB_MOVIE_CREDITS, API_KEY, movieId);
         String json = getJsonBody(path);
-        MovieCreditsDto movieCreditsDto = gson.fromJson(json, MovieCreditsDto.class);
-        return movieCreditsDto.getCast();
+        return gson.fromJson(json, MovieCreditsDto.class);
     }
 
     /**
@@ -118,11 +112,10 @@ public class MovieWebApi {
     /**
      * E.g. https://api.themoviedb.org/3/person/4756/movie_credits?api_key=***************
      */
-    public SearchItemDto[] getPersonCreditsCast(int personId) {
+    public PersonCreditsDto getPersonCredits(int personId) {
         String path = MessageFormat.format(MOVIE_DB_HOST + MOVIE_DB_PERSON_CREDITS, API_KEY, personId);
         String json = getJsonBody(path);
-        PersonCreditsDto personCreditsDto = gson.fromJson(json, PersonCreditsDto.class);
-        return personCreditsDto.getCast();
+        return gson.fromJson(json, PersonCreditsDto.class);
     }
 
     private String getJsonBody(String path) {

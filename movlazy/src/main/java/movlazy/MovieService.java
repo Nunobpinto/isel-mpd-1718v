@@ -20,7 +20,7 @@ package movlazy;
 import java.util.HashMap;
 import java.util.Map;
 
-import movlazy.model.Credit;
+import movlazy.model.Credits;
 import util.Queries;
 
 import movlazy.dto.*;
@@ -40,8 +40,8 @@ public class MovieService {
 
     private final MovieWebApi movieWebApi;
     private final Map<Integer, Movie> movies = new HashMap<>();
-    private final Map<Integer, Supplier<Stream<Credit>>> cast = new HashMap<>();
-    private final Map<Integer, Person> actors = new HashMap<>();
+    private final Map<Integer, Supplier<Stream<Credits>>> credit = new HashMap<>();
+    private final Map<Integer, Person> person = new HashMap<>();
 
     public MovieService(MovieWebApi movieWebApi) {
         this.movieWebApi = movieWebApi;
@@ -57,8 +57,12 @@ public class MovieService {
                         .map(this::parseSearchItemDto);
     }
 
-    public Supplier<Stream<SearchItem>> getPersonCreditsCast(int actorId) {
-        return () -> Stream.of(movieWebApi.getPersonCreditsCast(actorId)).map(this::parseSearchItemDto);
+    public Supplier<Stream<Credits>> getPersonCredits(int actorId) {
+        return credit.computeIfAbsent(actorId, id ->
+                Cache.of(
+                        () -> Stream.of(movieWebApi.getPersonCredits(actorId)).methodToConcatSeq()
+                )
+        );
     }
 
     public Movie getMovie(int movId) {
@@ -68,16 +72,15 @@ public class MovieService {
         });
     }
 
-    public Supplier<Stream<Credit>> getMovieCast(int movId) {
-        return cast.computeIfAbsent(movId, id ->
+    public Supplier<Stream<Credits>> getMovieCredits(int movId) {
+        return credit.computeIfAbsent(movId, id ->
                 Cache.of(
-                        () -> Stream.of(movieWebApi.getMovieCast(id))
-                                .map(dto -> parseCastItemDto(dto, id))
+                        () -> Stream.of(movieWebApi.getMovieCredits(id)).methodToConcatSeq()
                 ));
     }
 
-    public Person getActor(int actorId, String name) {
-        return actors.computeIfAbsent(actorId, id -> {
+    public Person getPerson(int actorId, String name) {
+        return person.computeIfAbsent(actorId, id -> {
             PersonDto personDto = movieWebApi.getPerson(actorId);
             return parsePersonDto(personDto);
         });
@@ -89,7 +92,7 @@ public class MovieService {
                 dto.getName(),
                 dto.getPlace_of_birth(),
                 dto.getBiography(),
-                getPersonCreditsCast(dto.getId())
+
         );
     }
 
@@ -111,18 +114,20 @@ public class MovieService {
                 dto.getOverview(),
                 dto.getVoteAverage(),
                 dto.getReleaseDate(),
-                this.getMovieCast(dto.getId())
+                this.getMovieCredits(dto.getId())
 
         );
     }
 
-    private Credit parseCastItemDto(CastItemDto dto, int movId) {
-        return new Credit(
+    private Credits parseCreditItemDto(CastItemDto dto, int movId) {
+        return new Credits(
                 dto.getId(),
                 movId,
+                ,
+                ,
                 dto.getCharacter(),
                 dto.getName(),
-                () -> getActor(dto.getId(), "")
+                getPerson(dto.getId(), "")
         );
     }
 }
