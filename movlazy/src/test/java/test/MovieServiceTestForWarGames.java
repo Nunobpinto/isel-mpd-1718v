@@ -21,7 +21,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import movlazy.MovieService;
 import movlazy.MovieWebApi;
 import movlazy.dto.SearchItemDto;
-import movlazy.model.Credits;
+import movlazy.model.Credit;
 import movlazy.model.SearchItem;
 import org.junit.jupiter.api.Test;
 import util.FileRequest;
@@ -63,7 +63,7 @@ public class MovieServiceTestForWarGames {
         assertEquals(59, movies.get().count());// Number of returned movies
         assertEquals(6, count[0]); // 4 requests more to consume all pages
     }
-
+/*
     @Test
     public void testMovieDbApiGetActor() {
         int[] count = {0};
@@ -77,7 +77,7 @@ public class MovieServiceTestForWarGames {
         assertEquals("Inspector Gadget", actorMovs[0].getTitle());
         assertEquals(1, count[0]); // 1 request
     }
-
+*/
     @Test
     public void testSearchMovieThenActorsThenMoviesAgain() {
         final RateLimiter rateLimiter = RateLimiter.create(3.0);
@@ -111,48 +111,48 @@ public class MovieServiceTestForWarGames {
         assertEquals("Is it a game, or is it real?", warGames.getDetails().getTagline());
         assertEquals(5, count[0]); // NO more request. It is already in cache
         /**
-         * getCredit() relation Movie --->* Credits is Lazy and
-         * supported on Supplier<List<Credits>> with Cache
+         * getCredits() relation Movie --->* Credit is Lazy and
+         * supported on Supplier<List<Credit>> with Cache
          */
-        Supplier<Stream<Credits>> warGamesCast = warGames.getDetails().getCredit();
+        Supplier<Stream<Credit>> warGamesCast = warGames.getDetails().getCredits();
         assertEquals(5, count[0]); // No requests to get the Movie Cast => It is Lazy
         assertEquals("Matthew Broderick",
                 warGamesCast.get().findFirst().get().getName());
         assertEquals(5, count[0]); // 1 more request for warGamesCast.get().
-        Stream <Credits> iter = warGamesCast.get().skip(2);
+        Stream <Credit> iter = warGamesCast.get().skip(2);
         assertEquals("Ally Sheedy",
                 iter.findFirst().get().getName());
         assertEquals(5, count[0]); // NO more request. It is already in cache
         /**
-         * Credits ---> Person is Lazy and with Cache for Person but No cache for actor credits
+         * Credit ---> Person is Lazy and with Cache for Person but No cache for actor credits
          */
-        Credits broderick = warGames.getDetails().getCredit().get().findFirst().get();
+        Credit broderick = warGames.getDetails().getCredits().get().findFirst().get();
         assertEquals(5, count[0]); // NO more request. It is already in cache
         assertEquals("New York City, New York, USA",
-                broderick.getActor().getPlaceOfBirth());
+                broderick.getDetails().getPlaceOfBirth());
         assertEquals(6, count[0]); // 1 more request for Person Person
         assertEquals("New York City, New York, USA",
-                broderick.getActor().getPlaceOfBirth());
+                broderick.getDetails().getPlaceOfBirth());
         assertEquals(6, count[0]); // NO more request. It is already in cache
         assertEquals("Inspector Gadget",
-                broderick.getActor().getMovies().get().findFirst().get().getTitle());
-        assertEquals(7, count[0]); // 1 more request for Person Credits
+                broderick.getDetails().getMovies().get().findFirst().get().getTitle());
+        assertEquals(7, count[0]); // 1 more request for Person Credit
         assertEquals("Inspector Gadget",
-                broderick.getActor().getMovies().get().findFirst().get().getTitle());
+                broderick.getDetails().getMovies().get().findFirst().get().getTitle());
         assertEquals(8, count[0]); // 1 more request. Person Cast is not in cache
 
         /**
          * Check Cache from the beginning
          */
         assertEquals("New York City, New York, USA",
-                movieService.getMovie(860).getCredit().get().findFirst().get().getActor().getPlaceOfBirth());
+                movieService.getMovie(860).getCredits().get().findFirst().get().getDetails().getPlaceOfBirth());
         assertEquals(8, count[0]); // No more requests for the same getMovie.
         /*
          * Now get a new Film
          */
         assertEquals("Predator",
-                movieService.getMovie(861).getCredit().get().findFirst().get().getActor().getMovies().get().findFirst().get().getTitle());
-        assertEquals(12, count[0]); // 1 request for Movie + 1 for CastItems + 1 Person + 1 Person Credits
+                movieService.getMovie(861).getCredits().get().findFirst().get().getDetails().getMovies().get().findFirst().get().getTitle());
+        assertEquals(12, count[0]); // 1 request for Movie + 1 for CastItems + 1 Person + 1 Person Credit
     }
 
     @Test

@@ -20,7 +20,7 @@ package movlazy;
 import java.util.HashMap;
 import java.util.Map;
 
-import movlazy.model.Credits;
+import movlazy.model.Credit;
 import util.Queries;
 
 import movlazy.dto.*;
@@ -28,6 +28,7 @@ import movlazy.model.Person;
 import movlazy.model.Movie;
 import movlazy.model.SearchItem;
 import util.Cache;
+import util.Query;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -40,7 +41,7 @@ public class MovieService {
 
     private final MovieWebApi movieWebApi;
     private final Map<Integer, Movie> movies = new HashMap<>();
-    private final Map<Integer, Supplier<Stream<Credits>>> credit = new HashMap<>();
+    private final Map<Integer, Supplier<Stream<Credit>>> credit = new HashMap<>();
     private final Map<Integer, Person> person = new HashMap<>();
 
     public MovieService(MovieWebApi movieWebApi) {
@@ -57,12 +58,14 @@ public class MovieService {
                         .map(this::parseSearchItemDto);
     }
 
-    public Supplier<Stream<Credits>> getPersonCredits(int actorId) {
-        return credit.computeIfAbsent(actorId, id ->
+    //TODO
+    public Supplier<Stream<Credit>> getPersonCredits(int actorId) {
+       /* return credit.computeIfAbsent(actorId, id ->
                 Cache.of(
                         () -> Stream.of(movieWebApi.getPersonCredits(actorId)).methodToConcatSeq()
                 )
-        );
+        );*/
+        return null;
     }
 
     public Movie getMovie(int movId) {
@@ -72,11 +75,15 @@ public class MovieService {
         });
     }
 
-    public Supplier<Stream<Credits>> getMovieCredits(int movId) {
-        return credit.computeIfAbsent(movId, id ->
-                Cache.of(
-                        () -> Stream.of(movieWebApi.getMovieCredits(id)).methodToConcatSeq()
-                ));
+    //TODO
+    public Supplier<Stream<Credit>> getMovieCredits(int movId) {
+        return credit.computeIfAbsent(movId, id -> {
+            MovieCreditsDto dto = movieWebApi.getMovieCredits(id);
+            return () -> Stream
+                    .of(dto.getCredit())
+                    .map(castItemDto -> parseCreditItemDto(castItemDto, movId))
+                    .;
+        });
     }
 
     public Person getPerson(int actorId, String name) {
@@ -86,13 +93,14 @@ public class MovieService {
         });
     }
 
+    //TODO
     private Person parsePersonDto(PersonDto dto) {
         return new Person(
                 dto.getId(),
                 dto.getName(),
                 dto.getPlace_of_birth(),
                 dto.getBiography(),
-
+                null
         );
     }
 
@@ -119,15 +127,16 @@ public class MovieService {
         );
     }
 
-    private Credits parseCreditItemDto(CastItemDto dto, int movId) {
-        return new Credits(
+    //TODO
+    private Credit parseCreditItemDto(CastItemDto dto, int movId) {
+        return new Credit(
                 dto.getId(),
                 movId,
-                ,
-                ,
+                null,
+                null,
                 dto.getCharacter(),
                 dto.getName(),
-                getPerson(dto.getId(), "")
+                () -> getPerson(dto.getId(), "")
         );
     }
 }
