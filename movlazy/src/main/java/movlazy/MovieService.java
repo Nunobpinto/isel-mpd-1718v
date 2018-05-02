@@ -20,11 +20,11 @@ package movlazy;
 import java.util.HashMap;
 import java.util.Map;
 
+import movlazy.model.Credit;
 import util.Queries;
 
 import movlazy.dto.*;
-import movlazy.model.Actor;
-import movlazy.model.CastItem;
+import movlazy.model.Person;
 import movlazy.model.Movie;
 import movlazy.model.SearchItem;
 import util.Cache;
@@ -40,8 +40,8 @@ public class MovieService {
 
     private final MovieWebApi movieWebApi;
     private final Map<Integer, Movie> movies = new HashMap<>();
-    private final Map<Integer, Supplier<Stream<CastItem>>> cast = new HashMap<>();
-    private final Map<Integer, Actor> actors = new HashMap<>();
+    private final Map<Integer, Supplier<Stream<Credit>>> cast = new HashMap<>();
+    private final Map<Integer, Person> actors = new HashMap<>();
 
     public MovieService(MovieWebApi movieWebApi) {
         this.movieWebApi = movieWebApi;
@@ -68,7 +68,7 @@ public class MovieService {
         });
     }
 
-    public Supplier<Stream<CastItem>> getMovieCast(int movId) {
+    public Supplier<Stream<Credit>> getMovieCast(int movId) {
         return cast.computeIfAbsent(movId, id ->
                 Cache.of(
                         () -> Stream.of(movieWebApi.getMovieCast(id))
@@ -76,15 +76,15 @@ public class MovieService {
                 ));
     }
 
-    public Actor getActor(int actorId, String name) {
+    public Person getActor(int actorId, String name) {
         return actors.computeIfAbsent(actorId, id -> {
             PersonDto personDto = movieWebApi.getPerson(actorId);
             return parsePersonDto(personDto);
         });
     }
 
-    private Actor parsePersonDto(PersonDto dto) {
-        return new Actor(
+    private Person parsePersonDto(PersonDto dto) {
+        return new Person(
                 dto.getId(),
                 dto.getName(),
                 dto.getPlace_of_birth(),
@@ -116,8 +116,8 @@ public class MovieService {
         );
     }
 
-    private CastItem parseCastItemDto(CastItemDto dto, int movId) {
-        return new CastItem(
+    private Credit parseCastItemDto(CastItemDto dto, int movId) {
+        return new Credit(
                 dto.getId(),
                 movId,
                 dto.getCharacter(),

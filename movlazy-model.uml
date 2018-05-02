@@ -4,8 +4,8 @@
   <OriginalElement>movlazy.model</OriginalElement>
   <nodes>
     <node x="-380.0" y="5.0">movlazy.model.SearchItem</node>
-    <node x="-8.0" y="469.0">movlazy.model.Actor</node>
-    <node x="384.0" y="9.0">movlazy.model.CastItem</node>
+    <node x="-8.0" y="469.0">movlazy.model.Person</node>
+    <node x="384.0" y="9.0">movlazy.model.Credit</node>
     <node x="0.0" y="0.0">movlazy.model.Movie</node>
   </nodes>
   <notes />

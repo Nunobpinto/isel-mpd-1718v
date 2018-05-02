@@ -21,7 +21,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import movlazy.MovieService;
 import movlazy.MovieWebApi;
 import movlazy.dto.SearchItemDto;
-import movlazy.model.CastItem;
+import movlazy.model.Credit;
 import movlazy.model.SearchItem;
 import org.junit.jupiter.api.Test;
 import util.FileRequest;
@@ -111,35 +111,35 @@ public class MovieServiceTestForWarGames {
         assertEquals("Is it a game, or is it real?", warGames.getDetails().getTagline());
         assertEquals(5, count[0]); // NO more request. It is already in cache
         /**
-         * getCast() relation Movie --->* CastItem is Lazy and
-         * supported on Supplier<List<CastItem>> with Cache
+         * getCast() relation Movie --->* Credit is Lazy and
+         * supported on Supplier<List<Credit>> with Cache
          */
-        Supplier<Stream<CastItem>> warGamesCast = warGames.getDetails().getCast();
+        Supplier<Stream<Credit>> warGamesCast = warGames.getDetails().getCast();
         assertEquals(5, count[0]); // No requests to get the Movie Cast => It is Lazy
         assertEquals("Matthew Broderick",
                 warGamesCast.get().findFirst().get().getName());
         assertEquals(5, count[0]); // 1 more request for warGamesCast.get().
-        Stream <CastItem> iter = warGamesCast.get().skip(2);
+        Stream <Credit> iter = warGamesCast.get().skip(2);
         assertEquals("Ally Sheedy",
                 iter.findFirst().get().getName());
         assertEquals(5, count[0]); // NO more request. It is already in cache
         /**
-         * CastItem ---> Actor is Lazy and with Cache for Person but No cache for actor credits
+         * Credit ---> Person is Lazy and with Cache for Person but No cache for actor credits
          */
-        CastItem broderick = warGames.getDetails().getCast().get().findFirst().get();
+        Credit broderick = warGames.getDetails().getCast().get().findFirst().get();
         assertEquals(5, count[0]); // NO more request. It is already in cache
         assertEquals("New York City, New York, USA",
                 broderick.getActor().getPlaceOfBirth());
-        assertEquals(6, count[0]); // 1 more request for Actor Person
+        assertEquals(6, count[0]); // 1 more request for Person Person
         assertEquals("New York City, New York, USA",
                 broderick.getActor().getPlaceOfBirth());
         assertEquals(6, count[0]); // NO more request. It is already in cache
         assertEquals("Inspector Gadget",
                 broderick.getActor().getMovies().get().findFirst().get().getTitle());
-        assertEquals(7, count[0]); // 1 more request for Actor Credits
+        assertEquals(7, count[0]); // 1 more request for Person Credits
         assertEquals("Inspector Gadget",
                 broderick.getActor().getMovies().get().findFirst().get().getTitle());
-        assertEquals(8, count[0]); // 1 more request. Actor Cast is not in cache
+        assertEquals(8, count[0]); // 1 more request. Person Cast is not in cache
 
         /**
          * Check Cache from the beginning
@@ -152,7 +152,7 @@ public class MovieServiceTestForWarGames {
          */
         assertEquals("Predator",
                 movieService.getMovie(861).getCast().get().findFirst().get().getActor().getMovies().get().findFirst().get().getTitle());
-        assertEquals(12, count[0]); // 1 request for Movie + 1 for CastItems + 1 Person + 1 Actor Credits
+        assertEquals(12, count[0]); // 1 request for Movie + 1 for CastItems + 1 Person + 1 Person Credits
     }
 
     @Test

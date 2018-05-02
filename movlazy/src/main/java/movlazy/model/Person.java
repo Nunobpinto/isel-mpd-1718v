@@ -7,7 +7,7 @@ import java.util.stream.Stream;
  * @author Miguel Gamboa
  *         created on 04-08-2017
  */
-public class Actor {
+public class Person {
     private final int id;
     private final String name;
     private final Supplier<Stream<SearchItem>> movies;
@@ -15,7 +15,7 @@ public class Actor {
     private final String biography;
 
 
-    public Actor(int id, String name, String placeOfBirth, String biography, Supplier<Stream<SearchItem>> movies) {
+    public Person(int id, String name, String placeOfBirth, String biography, Supplier<Stream<SearchItem>> movies) {
         this.id = id;
         this.name = name;
         this.movies = movies;
@@ -45,7 +45,7 @@ public class Actor {
 
     @Override
     public String toString() {
-        return "Actor{" +
+        return "Person{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", movies=" + movies +

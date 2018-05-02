@@ -6,15 +6,15 @@ import java.util.function.Supplier;
  * @author Miguel Gamboa
  *         created on 04-08-2017
  */
-public class CastItem {
+public class Credit {
     private final int id;
     private final int movieId;
     private final String character;
     private final String name;
-    private final Supplier<Actor> actor;
+    private final Supplier<Person> actor;
 
 
-    public CastItem(int id, int movieId, String character, String name, Supplier<Actor> actor) {
+    public Credit(int id, int movieId, String character, String name, Supplier<Person> actor) {
         this.id = id;
         this.movieId = movieId;
         this.character = character;
@@ -38,13 +38,13 @@ public class CastItem {
         return movieId;
     }
 
-    public Actor getActor() {
+    public Person getActor() {
         return actor.get();
     }
 
     @Override
     public String toString() {
-        return "CastItem{" +
+        return "Credit{" +
                 "id=" + id +
                 ", movieId=" + movieId +
                 ", character='" + character + '\'' +

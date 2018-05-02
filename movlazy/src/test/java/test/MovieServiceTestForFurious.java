@@ -3,13 +3,11 @@ package test;
 import movlazy.MovieService;
 import movlazy.MovieWebApi;
 import movlazy.dto.SearchItemDto;
-import movlazy.model.CastItem;
+import movlazy.model.Credit;
 import movlazy.model.SearchItem;
 import org.junit.jupiter.api.Test;
 import util.*;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -87,17 +85,17 @@ public class MovieServiceTestForFurious {
         assertEquals("", furious.getDetails().getTagline());
         assertEquals(7, count[0]);
 
-        Supplier<Stream<CastItem>> furiousCast = furious.getDetails().getCast();
+        Supplier<Stream<Credit>> furiousCast = furious.getDetails().getCast();
         assertEquals(7, count[0]);
         assertEquals("Simon Rhee",
                 furiousCast.get().findFirst().get().getName());
         assertEquals(7, count[0]);
-        Stream<CastItem> iter = furiousCast.get().skip(2);
+        Stream<Credit> iter = furiousCast.get().skip(2);
         assertEquals("Howard Jackson ",
                 iter.findFirst().get().getName());
         assertEquals(7, count[0]);
 
-        CastItem simon = furious.getDetails().getCast().get().findFirst().get();
+        Credit simon = furious.getDetails().getCast().get().findFirst().get();
         assertEquals(7, count[0]);
         assertEquals("San Jose, California, USA",
                 simon.getActor().getPlaceOfBirth());
