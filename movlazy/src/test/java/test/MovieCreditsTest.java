@@ -4,6 +4,7 @@ import movlazy.MovieService;
 import movlazy.MovieWebApi;
 import movlazy.model.Credit;
 import org.junit.jupiter.api.Test;
+import util.FileRequest;
 import util.HttpRequest;
 
 import java.util.function.Supplier;
@@ -15,7 +16,7 @@ public class MovieCreditsTest {
 
     @Test
     public void testMovieCreditsMergedActor() {
-        MovieService movieApi = new MovieService(new MovieWebApi(new HttpRequest().compose(System.out::println)));
+        MovieService movieApi = new MovieService(new MovieWebApi(new FileRequest().compose(System.out::println)));
         Supplier<Stream<Credit>> credits = movieApi.getMovieCredits(489);
         Credit res = credits
                 .get()

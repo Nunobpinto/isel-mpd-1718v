@@ -1,6 +1,8 @@
 package util;
 
 import util.iterator.*;
+import util.spliterator.JoinSpliterator;
+import util.spliterator.TakeWhileSpliterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -155,6 +157,15 @@ public class Queries {
     public static <T> Spliterator<T> takeWhile(Spliterator<T> splitr, Predicate<? super T> predicate) {
         return new TakeWhileSpliterator(splitr, predicate);
     }
+
+    public static <T> Stream<T> join (Stream<T> stream, ArrayList list, Predicate<? super T> predicate) {
+        return StreamSupport.stream(join(stream.spliterator(), list, predicate), false);
+    }
+
+    public static <T> Spliterator<T> join(Spliterator<T> splitr, ArrayList list, Predicate<? super T> predicate) {
+        return new JoinSpliterator(splitr, list, predicate);
+    }
+
 
     /**
      * Returns a new Iterable consisting of the results of replacing each

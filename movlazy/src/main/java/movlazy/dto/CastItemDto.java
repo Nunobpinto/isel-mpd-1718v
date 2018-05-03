@@ -22,10 +22,10 @@ package movlazy.dto;
  *         created on 04-08-2017
  */
 public class CastItemDto {
-    private final String character;
-    private final String name;
-    private final String credit_id;
-    private final int id;
+    private String character;
+    private String name;
+    private String credit_id;
+    private int id;
 
     public CastItemDto(String character, String name, String credit_id, int id){
         this.character = character;
@@ -38,16 +38,32 @@ public class CastItemDto {
         return character;
     }
 
+    public void setCharacter(String character) {
+        this.character = character;
+    }
+
     public String getName() {
         return name;
     }
 
-    public String getCredit_id() {
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCreditId() {
         return credit_id;
+    }
+
+    public void setCreditId(String credit_id) {
+        this.credit_id = credit_id;
     }
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override

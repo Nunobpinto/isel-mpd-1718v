@@ -8,13 +8,13 @@ import java.util.function.Supplier;
  *         created on 04-08-2017
  */
 public class Credit {
-    private final int id;
-    private final int movieId;
-    private final String department;
-    private final String job;
-    private final String character;
-    private final String name;
-    private final Supplier<Person> details;
+    private int id;
+    private int movieId;
+    private String department;
+    private String job;
+    private String character;
+    private String name;
+    private Supplier<Person> details;
 
 
     public Credit(int id, int movieId, String department, String job, String character, String name, Supplier<Person> details) {
@@ -49,6 +49,34 @@ public class Credit {
 
     public Person getDetails() {
         return details.get();
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setMovieId(int movieId) {
+        this.movieId = movieId;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public void setJob(String job) {
+        this.job = job;
+    }
+
+    public void setCharacter(String character) {
+        this.character = character;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDetails(Supplier<Person> details) {
+        this.details = details;
     }
 
     @Override

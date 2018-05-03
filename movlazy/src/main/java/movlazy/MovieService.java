@@ -17,7 +17,9 @@
 
 package movlazy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import movlazy.model.Credit;
@@ -27,8 +29,6 @@ import movlazy.dto.*;
 import movlazy.model.Person;
 import movlazy.model.Movie;
 import movlazy.model.SearchItem;
-import util.Cache;
-import util.Query;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -79,10 +79,29 @@ public class MovieService {
     public Supplier<Stream<Credit>> getMovieCredits(int movId) {
         return credit.computeIfAbsent(movId, id -> {
             MovieCreditsDto dto = movieWebApi.getMovieCredits(id);
-            return () -> Stream
-                    .of(dto.getCredit())
-                    .map(castItemDto -> parseCreditItemDto(castItemDto, movId))
-                    .;
+
+            List<Credit> l = new ArrayList<>();
+            //boolean [] b = new boolean[dto.getCrew().length];
+
+            for (CastItemDto castItemDto : dto.getCast()) {
+                l.add(parseCreditItemDto(castItemDto, movId));
+            }
+
+            for (CrewItemDto crewItemDto : dto.getCrew()) {
+                Credit credit = parseCrewItemDto(crewItemDto, movId);
+                for (Credit c : l) {
+                    if (c.getId() == credit.getId()){
+                        c.setDepartment(crewItemDto.getDepartment());
+                        c.setJob(crewItemDto.getJob());
+                    }
+                    l.add(credit);
+                }
+            }
+            return l::stream;
+//            return () -> Stream
+//                    .of(dto.getCast())
+//                    .map(castItemDto -> parseCreditItemDto(castItemDto, movId))
+//                    .;
         });
     }
 
@@ -137,6 +156,18 @@ public class MovieService {
                 dto.getCharacter(),
                 dto.getName(),
                 () -> getPerson(dto.getId(), "")
+        );
+    }
+
+    private Credit parseCrewItemDto(CrewItemDto dto, int movId) {
+        return new Credit(
+            dto.getId(),
+                movId,
+                dto.getDepartment(),
+                dto.getJob(),
+                null,
+                dto.getName(),
+                null
         );
     }
 }
