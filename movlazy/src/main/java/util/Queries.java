@@ -147,27 +147,6 @@ public class Queries {
     }
 
     /**
-     * Returns a new Spliterator consisting of the longest prefix of elements
-     * taken from the src Stream that match the given predicate.
-     */
-    public static <T> Stream<T> takeWhile (Stream<T> stream, Predicate<? super T> predicate) {
-        return StreamSupport.stream(takeWhile(stream.spliterator(), predicate), false);
-    }
-
-    public static <T> Spliterator<T> takeWhile(Spliterator<T> splitr, Predicate<? super T> predicate) {
-        return new TakeWhileSpliterator(splitr, predicate);
-    }
-
-    public static <T> Stream<T> join (Stream<T> stream, ArrayList list, Predicate<? super T> predicate) {
-        return StreamSupport.stream(join(stream.spliterator(), list, predicate), false);
-    }
-
-    public static <T> Spliterator<T> join(Spliterator<T> splitr, ArrayList list, Predicate<? super T> predicate) {
-        return new JoinSpliterator(splitr, list, predicate);
-    }
-
-
-    /**
      * Returns a new Iterable consisting of the results of replacing each
      * element of the src Iterable with the contents of a mapped Iterable
      * produced by applying the provided mapping function mapper to

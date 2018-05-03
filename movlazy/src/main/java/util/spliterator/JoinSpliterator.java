@@ -20,6 +20,8 @@ public class JoinSpliterator <T> extends Spliterators.AbstractSpliterator<T> {
 
     @Override
     public boolean tryAdvance(Consumer<? super T> action) {
+
         return true;
+
     }
 }

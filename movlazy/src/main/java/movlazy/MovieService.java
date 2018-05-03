@@ -17,13 +17,9 @@
 
 package movlazy;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import movlazy.model.Credit;
-import util.Queries;
 
 import movlazy.dto.*;
 import movlazy.model.Person;
@@ -31,7 +27,12 @@ import movlazy.model.Movie;
 import movlazy.model.SearchItem;
 
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static util.QueriesSpliterator.joinSeq;
+import static util.QueriesSpliterator.takeWhile;
+
 
 /**
  * @author Miguel Gamboa
@@ -50,7 +51,7 @@ public class MovieService {
 
     public Supplier<Stream<SearchItem>> search(String name) {
         return () ->
-                Queries.takeWhile(
+                takeWhile(
                         Stream.iterate(1, prev -> ++prev).map(page -> movieWebApi.search(name, page)),
                         movs -> movs.length != 0
                 )
@@ -78,13 +79,25 @@ public class MovieService {
     //TODO
     public Supplier<Stream<Credit>> getMovieCredits(int movId) {
         return credit.computeIfAbsent(movId, id -> {
-            MovieCreditsDto dto = movieWebApi.getMovieCredits(id);
+                    MovieCreditsDto dto = movieWebApi.getMovieCredits(id);
+                    Stream<Credit> s = Stream.of(dto.getCast()).map(item -> parseCasttItemDto(item, movId));
+                    List<Credit> list = s.collect(Collectors.toList());
+                    return () -> joinSeq(
+                            Stream.of(dto.getCrew()),
+                            list,
+                            (item) -> {
+                                list.stream().filter(l -> l.getId() == item.getId()).findFirst();
+                                return true;
+                            }
+                            );
+                });
 
+            /*
             List<Credit> l = new ArrayList<>();
             //boolean [] b = new boolean[dto.getCrew().length];
 
             for (CastItemDto castItemDto : dto.getCast()) {
-                l.add(parseCreditItemDto(castItemDto, movId));
+                l.add(parseCasttItemDto(castItemDto, movId));
             }
 
             for (CrewItemDto crewItemDto : dto.getCrew()) {
@@ -97,13 +110,9 @@ public class MovieService {
                     l.add(credit);
                 }
             }
-            return l::stream;
-//            return () -> Stream
-//                    .of(dto.getCast())
-//                    .map(castItemDto -> parseCreditItemDto(castItemDto, movId))
-//                    .;
-        });
-    }
+            return l::stream;*/
+
+}
 
     public Person getPerson(int actorId, String name) {
         return person.computeIfAbsent(actorId, id -> {
@@ -147,7 +156,7 @@ public class MovieService {
     }
 
     //TODO
-    private Credit parseCreditItemDto(CastItemDto dto, int movId) {
+    private Credit parseCasttItemDto(CastItemDto dto, int movId) {
         return new Credit(
                 dto.getId(),
                 movId,
@@ -161,7 +170,7 @@ public class MovieService {
 
     private Credit parseCrewItemDto(CrewItemDto dto, int movId) {
         return new Credit(
-            dto.getId(),
+                dto.getId(),
                 movId,
                 dto.getDepartment(),
                 dto.getJob(),
