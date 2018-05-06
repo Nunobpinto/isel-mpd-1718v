@@ -25,12 +25,12 @@ public class Cache {
         final long estimateSize;
         boolean hasNext = true;
 
-        public Recorder(Spliterator<T> src) {
+        Recorder(Spliterator<T> src) {
             this.src = src;
             this.estimateSize = src.estimateSize();
         }
 
-        public synchronized boolean getOrAdvance(
+        synchronized boolean getOrAdvance(
                 final int index,
                 Consumer<? super T> cons) {
             if (index < cache.size()) {
@@ -46,7 +46,7 @@ public class Cache {
             return hasNext;
         }
 
-        public Spliterator<T> cacheIterator() {
+        Spliterator<T> cacheIterator() {
             return new Spliterators.AbstractSpliterator<T>(
                     estimateSize, src.characteristics()
             ) {

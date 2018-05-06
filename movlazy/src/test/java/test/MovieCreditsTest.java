@@ -20,10 +20,10 @@ public class MovieCreditsTest {
         Supplier<Stream<Credit>> credits = movieApi.getMovieCredits(489);
         Credit res = credits
                 .get()
-                .peek( credit -> System.out.println(credit.getName()))
                 .filter(c -> c.getId() == 1892)
                 .findFirst()
                 .get();
+        System.out.println(res.toString());
         assertEquals("Matt Damon", res.getName());
         assertEquals("Writer", res.getJob());
         assertEquals("Writing", res.getDepartment());
@@ -31,9 +31,13 @@ public class MovieCreditsTest {
     }
 
     @Test void testMovieCreditsCount() {
-        MovieService movieApi = new MovieService(new MovieWebApi(new HttpRequest().compose(System.out::println)));
-        Supplier<Stream<Credit>> credits = movieApi.getMovieCredits(489);
-        assertEquals(9999, credits.get().count());
+        final int[] count = {0};
+        MovieService movieApi = new MovieService(new MovieWebApi(new FileRequest().compose(System.out::println).compose(__ -> count[0]++)));
+        Supplier<Stream<Credit>> req1 = movieApi.getMovieCredits(489);
+        Supplier<Stream<Credit>> req2 = movieApi.getMovieCredits(489);
+        long req2size = req2.get().count();
+        assertEquals(114, req1.get().count());
+        assertEquals(1, count[0]);
     }
 
 }

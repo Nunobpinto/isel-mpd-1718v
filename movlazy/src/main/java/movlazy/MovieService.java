@@ -19,12 +19,14 @@ package movlazy;
 
 import java.util.*;
 
+import com.google.common.collect.Lists;
 import movlazy.model.Credit;
 
 import movlazy.dto.*;
 import movlazy.model.Person;
 import movlazy.model.Movie;
 import movlazy.model.SearchItem;
+import util.Cache;
 
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -59,14 +61,13 @@ public class MovieService {
                         .map(this::parseSearchItemDto);
     }
 
-    //TODO
     public Supplier<Stream<Credit>> getPersonCredits(int actorId) {
-       /* return credit.computeIfAbsent(actorId, id ->
-                Cache.of(
-                        () -> Stream.of(movieWebApi.getPersonCredits(actorId)).methodToConcatSeq()
-                )
-        );*/
-        return null;
+        return credit.computeIfAbsent(actorId, id ->
+            Cache.of(
+              () -> {return null;}
+            ));
+        //);
+        //return null;
     }
 
     public Movie getMovie(int movId) {
@@ -76,43 +77,30 @@ public class MovieService {
         });
     }
 
-    //TODO
     public Supplier<Stream<Credit>> getMovieCredits(int movId) {
-        return credit.computeIfAbsent(movId, id -> {
-                    MovieCreditsDto dto = movieWebApi.getMovieCredits(id);
-                    Stream<Credit> s = Stream.of(dto.getCast()).map(item -> parseCasttItemDto(item, movId));
-                    List<Credit> list = s.collect(Collectors.toList());
-                    return () -> joinSeq(
-                            Stream.of(dto.getCrew()),
-                            list,
-                            (item) -> {
-                                list.stream().filter(l -> l.getId() == item.getId()).findFirst();
-                                return true;
-                            }
+        return credit.computeIfAbsent(movId, id ->
+                Cache.of(
+                        () -> {
+                            MovieCreditsDto dto = movieWebApi.getMovieCredits(id);
+                            Stream<Credit> castStream = Stream.of(dto.getCast()).map(item -> parseCasttItemDto(item, movId));
+                            Stream<Credit> crewStream = Stream.of(dto.getCrew()).map(item -> parseCrewItemDto(item, movId));
+                            return joinSeq(
+                                    castStream,
+                                    crewStream.collect(Collectors.toList()),
+                                    (item, list) -> {
+                                        Optional<Credit> optionalCredit = list.stream().filter(i -> i.getId() == item.getId()).findFirst();
+                                        if (optionalCredit.isPresent()) {
+                                            Credit credit = optionalCredit.get();
+                                            item.setDepartment(credit.getDepartment());
+                                            item.setJob(credit.getJob());
+                                            list.remove(credit);
+                                        }
+                                    }
                             );
-                });
-
-            /*
-            List<Credit> l = new ArrayList<>();
-            //boolean [] b = new boolean[dto.getCrew().length];
-
-            for (CastItemDto castItemDto : dto.getCast()) {
-                l.add(parseCasttItemDto(castItemDto, movId));
-            }
-
-            for (CrewItemDto crewItemDto : dto.getCrew()) {
-                Credit credit = parseCrewItemDto(crewItemDto, movId);
-                for (Credit c : l) {
-                    if (c.getId() == credit.getId()){
-                        c.setDepartment(crewItemDto.getDepartment());
-                        c.setJob(crewItemDto.getJob());
-                    }
-                    l.add(credit);
-                }
-            }
-            return l::stream;*/
-
-}
+                        }
+                )
+        );
+    }
 
     public Person getPerson(int actorId, String name) {
         return person.computeIfAbsent(actorId, id -> {
@@ -121,7 +109,6 @@ public class MovieService {
         });
     }
 
-    //TODO
     private Person parsePersonDto(PersonDto dto) {
         return new Person(
                 dto.getId(),
@@ -155,7 +142,6 @@ public class MovieService {
         );
     }
 
-    //TODO
     private Credit parseCasttItemDto(CastItemDto dto, int movId) {
         return new Credit(
                 dto.getId(),
@@ -179,4 +165,5 @@ public class MovieService {
                 null
         );
     }
+
 }
