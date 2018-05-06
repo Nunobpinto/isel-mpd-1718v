@@ -112,10 +112,11 @@ public class MovieWebApi {
     /**
      * E.g. https://api.themoviedb.org/3/person/4756/movie_credits?api_key=***************
      */
-    public PersonCreditsDto getPersonCredits(int personId) {
+    public SearchItemDto[] getPersonCreditsCast(int personId) {
         String path = MessageFormat.format(MOVIE_DB_HOST + MOVIE_DB_PERSON_CREDITS, API_KEY, personId);
         String json = getJsonBody(path);
-        return gson.fromJson(json, PersonCreditsDto.class);
+        PersonCreditsDto personCreditsDto = gson.fromJson(json, PersonCreditsDto.class);
+        return personCreditsDto.getCast();
     }
 
     private String getJsonBody(String path) {

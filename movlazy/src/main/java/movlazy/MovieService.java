@@ -19,7 +19,6 @@ package movlazy;
 
 import java.util.*;
 
-import com.google.common.collect.Lists;
 import movlazy.model.Credit;
 
 import movlazy.dto.*;
@@ -61,13 +60,9 @@ public class MovieService {
                         .map(this::parseSearchItemDto);
     }
 
-    public Supplier<Stream<Credit>> getPersonCredits(int actorId) {
-        return credit.computeIfAbsent(actorId, id ->
-            Cache.of(
-              () -> {return null;}
-            ));
-        //);
-        //return null;
+    public Supplier<Stream<SearchItem>> getPersonCreditsCast(int actorId) {
+        return () ->
+                Stream.of(movieWebApi.getPersonCreditsCast(actorId)).map(this::parseSearchItemDto);
     }
 
     public Movie getMovie(int movId) {
@@ -102,7 +97,7 @@ public class MovieService {
         );
     }
 
-    public Person getPerson(int actorId, String name) {
+    public Person getPerson(int actorId) {
         return person.computeIfAbsent(actorId, id -> {
             PersonDto personDto = movieWebApi.getPerson(actorId);
             return parsePersonDto(personDto);
@@ -115,7 +110,7 @@ public class MovieService {
                 dto.getName(),
                 dto.getPlace_of_birth(),
                 dto.getBiography(),
-                null
+                getPersonCreditsCast(dto.getId())
         );
     }
 
@@ -150,7 +145,7 @@ public class MovieService {
                 null,
                 dto.getCharacter(),
                 dto.getName(),
-                () -> getPerson(dto.getId(), "")
+                () -> getPerson(dto.getId())
         );
     }
 
@@ -162,7 +157,7 @@ public class MovieService {
                 dto.getJob(),
                 null,
                 dto.getName(),
-                null
+                () -> getPerson(dto.getId())
         );
     }
 

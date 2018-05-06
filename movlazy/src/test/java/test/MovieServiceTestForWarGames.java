@@ -17,7 +17,6 @@
 
 package test;
 
-import com.google.common.util.concurrent.RateLimiter;
 import movlazy.MovieService;
 import movlazy.MovieWebApi;
 import movlazy.dto.SearchItemDto;
@@ -63,7 +62,7 @@ public class MovieServiceTestForWarGames {
         assertEquals(59, movies.get().count());// Number of returned movies
         assertEquals(6, count[0]); // 4 requests more to consume all pages
     }
-/*
+
     @Test
     public void testMovieDbApiGetActor() {
         int[] count = {0};
@@ -77,15 +76,13 @@ public class MovieServiceTestForWarGames {
         assertEquals("Inspector Gadget", actorMovs[0].getTitle());
         assertEquals(1, count[0]); // 1 request
     }
-*/
+
     @Test
     public void testSearchMovieThenActorsThenMoviesAgain() {
-        final RateLimiter rateLimiter = RateLimiter.create(3.0);
         final int[] count = {0};
         IRequest req = new FileRequest()
                 .compose(__ -> count[0]++)
-                .compose(System.out::println)
-                .compose(__ -> rateLimiter.acquire());
+                .compose(System.out::println);
 
         MovieService movieService = new MovieService(new MovieWebApi(req));
 
@@ -157,12 +154,10 @@ public class MovieServiceTestForWarGames {
 
     @Test
     public void testSearchMovieWithManyPages() {
-        final RateLimiter rateLimiter = RateLimiter.create(3.0);
         final int[] count = {0};
         IRequest req = new FileRequest()
                 .compose(__ -> count[0]++)
-                .compose(System.out::println)
-                .compose(__ -> rateLimiter.acquire());
+                .compose(System.out::println);
 
         MovieService movapi = new MovieService(new MovieWebApi(req));
 
