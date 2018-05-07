@@ -17,10 +17,10 @@
 
 package movlazy;
 
-import com.google.gson.Gson;
 import movlazy.dto.*;
 import util.IRequest;
 
+import com.google.gson.Gson;
 import java.io.*;
 import java.net.URL;
 import java.text.MessageFormat;

@@ -17,23 +17,20 @@
 
 package movlazy;
 
-import java.util.*;
-
-import movlazy.model.Credit;
-
 import movlazy.dto.*;
+import movlazy.model.Credit;
 import movlazy.model.Person;
 import movlazy.model.Movie;
 import movlazy.model.SearchItem;
 import util.Cache;
 
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static util.QueriesSpliterator.joinSeq;
 import static util.QueriesSpliterator.takeWhile;
-
 
 /**
  * @author Miguel Gamboa
@@ -42,9 +39,9 @@ import static util.QueriesSpliterator.takeWhile;
 public class MovieService {
 
     private final MovieWebApi movieWebApi;
-    private final Map<Integer, Movie> movies = new HashMap<>();
-    private final Map<Integer, Supplier<Stream<Credit>>> credit = new HashMap<>();
-    private final Map<Integer, Person> person = new HashMap<>();
+    private final Map<Integer, Movie> movieCache = new HashMap<>();
+    private final Map<Integer, Supplier<Stream<Credit>>> creditCache = new HashMap<>();
+    private final Map<Integer, Person> personCache = new HashMap<>();
 
     public MovieService(MovieWebApi movieWebApi) {
         this.movieWebApi = movieWebApi;
@@ -66,14 +63,14 @@ public class MovieService {
     }
 
     public Movie getMovie(int movId) {
-        return movies.computeIfAbsent(movId, id -> {
+        return movieCache.computeIfAbsent(movId, id -> {
             MovieDto mov = movieWebApi.getMovie(id);
             return parseMovieDto(mov);
         });
     }
 
     public Supplier<Stream<Credit>> getMovieCredits(int movId) {
-        return credit.computeIfAbsent(movId, id ->
+        return creditCache.computeIfAbsent(movId, id ->
                 Cache.of(
                         () -> {
                             MovieCreditsDto dto = movieWebApi.getMovieCredits(id);
@@ -98,7 +95,7 @@ public class MovieService {
     }
 
     public Person getPerson(int actorId) {
-        return person.computeIfAbsent(actorId, id -> {
+        return personCache.computeIfAbsent(actorId, id -> {
             PersonDto personDto = movieWebApi.getPerson(actorId);
             return parsePersonDto(personDto);
         });

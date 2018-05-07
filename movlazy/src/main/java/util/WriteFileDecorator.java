@@ -7,8 +7,6 @@ import java.nio.file.Paths;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static util.Queries.reduce;
-
 public class WriteFileDecorator implements IRequest {
     private IRequest request;
 
@@ -20,7 +18,7 @@ public class WriteFileDecorator implements IRequest {
     public Supplier<Stream<String>> getBody(String path) {
         Supplier<Stream<String>> body = request.getBody(path);
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(createPath(path)))) {
-            //writer.write(reduce(body, "", (prev, curr) -> prev + curr));
+            writer.write(body.get().reduce("", (prev, curr) -> prev + curr));
         } catch (IOException e) {
             e.printStackTrace();
         }
