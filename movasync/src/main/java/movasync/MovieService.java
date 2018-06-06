@@ -15,13 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package movlazy;
+package movasync;
 
+import movasync.dto.*;
+import movasync.model.SearchItem;
 import movlazy.dto.*;
-import movlazy.model.Credit;
-import movlazy.model.Person;
-import movlazy.model.Movie;
-import movlazy.model.SearchItem;
+import movasync.model.Credit;
+import movasync.model.Person;
+import movasync.model.Movie;
 import util.Cache;
 
 import java.util.*;

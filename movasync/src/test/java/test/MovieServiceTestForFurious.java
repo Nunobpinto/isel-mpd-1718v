@@ -1,10 +1,10 @@
 package test;
 
-import movlazy.MovieService;
-import movlazy.MovieWebApi;
-import movlazy.dto.SearchItemDto;
-import movlazy.model.Credit;
-import movlazy.model.SearchItem;
+import movasync.MovieService;
+import movasync.MovieWebApi;
+import movasync.dto.SearchItemDto;
+import movasync.model.Credit;
+import movasync.model.SearchItem;
 import org.junit.jupiter.api.Test;
 import util.*;
 

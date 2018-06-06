@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package movlazy.dto;
+package movasync.dto;
 
-import movlazy.model.SearchItem;
+import movasync.model.SearchItem;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;

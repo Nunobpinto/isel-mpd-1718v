@@ -1,8 +1,8 @@
 package test;
 
-import movlazy.MovieService;
-import movlazy.MovieWebApi;
-import movlazy.model.Credit;
+import movasync.MovieService;
+import movasync.MovieWebApi;
+import movasync.model.Credit;
 import org.junit.jupiter.api.Test;
 import util.FileRequest;
 

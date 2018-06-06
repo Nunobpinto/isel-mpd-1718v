@@ -1,4 +1,4 @@
-package movlazy.dto;
+package movasync.dto;
 
 public class SearchDto {
     private final int page;

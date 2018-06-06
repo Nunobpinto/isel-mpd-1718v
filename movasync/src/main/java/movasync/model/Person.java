@@ -1,4 +1,4 @@
-package movlazy.model;
+package movasync.model;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;

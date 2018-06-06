@@ -15,62 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package movlazy.dto;
+package movasync.dto;
 
 /**
  * @author Miguel Gamboa
- *         created on 04-08-2017
+ *         created on 17-02-2017
  */
-public class MovieDto {
+public class SearchItemDto {
     private final int id;
-    private final String original_title;
-    private final String tagline;
-    private final String overview;
-    private final double vote_average;
+    private final String title;
     private final String release_date;
+    private final double vote_average;
 
-    public MovieDto(int id, String original_title, String tagline, String overview, double vote_average, String release_date) {
+    public SearchItemDto(int id, String title, String release_date, double vote_average) {
         this.id = id;
-        this.original_title = original_title;
-        this.tagline = tagline;
-        this.overview = overview;
-        this.vote_average = vote_average;
+        this.title = title;
         this.release_date = release_date;
+        this.vote_average = vote_average;
     }
 
     public int getId() {
         return id;
     }
 
-    public String getOriginalTitle() {
-        return original_title;
-    }
-
-    public String getTagline() {
-        return tagline;
-    }
-
-    public String getOverview() {
-        return overview;
-    }
-
-    public double getVoteAverage() {
-        return vote_average;
+    public String getTitle() {
+        return title;
     }
 
     public String getReleaseDate() {
         return release_date;
     }
 
+    public double getVoteAverage() {
+        return vote_average;
+    }
+
     @Override
     public String toString() {
-        return "MovieDto{" +
-                "id=" + id +
-                ", original_title='" + original_title + '\'' +
-                ", tagline='" + tagline + '\'' +
-                ", overview='" + overview + '\'' +
-                ", vote_average=" + vote_average +
+        return "SearchItemDto{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
                 ", release_date='" + release_date + '\'' +
+                ", vote_average=" + vote_average +
                 '}';
     }
 }
