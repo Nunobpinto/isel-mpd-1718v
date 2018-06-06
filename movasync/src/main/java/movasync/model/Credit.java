@@ -1,5 +1,6 @@
 package movasync.model;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
@@ -13,10 +14,10 @@ public class Credit {
     private String job;
     private String character;
     private String name;
-    private Supplier<Person> details;
+    private CompletableFuture<Person> details;
 
 
-    public Credit(int id, int movieId, String department, String job, String character, String name, Supplier<Person> details) {
+    public Credit(int id, int movieId, String department, String job, String character, String name, CompletableFuture<Person> details) {
         this.id = id;
         this.movieId = movieId;
         this.department = department;
@@ -46,8 +47,8 @@ public class Credit {
         return movieId;
     }
 
-    public Person getDetails() {
-        return details.get();
+    public CompletableFuture<Person> getDetails() {
+        return details;
     }
 
     public void setId(int id) {
@@ -74,7 +75,7 @@ public class Credit {
         this.name = name;
     }
 
-    public void setDetails(Supplier<Person> details) {
+    public void setDetails(CompletableFuture<Person> details) {
         this.details = details;
     }
 

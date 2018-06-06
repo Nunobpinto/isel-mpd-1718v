@@ -17,6 +17,7 @@
 
 package movasync.model;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
@@ -28,14 +29,14 @@ public class SearchItem {
     private final String title;
     private final String release_date;
     private final double vote_average;
-    private final Supplier<Movie> details;
+    private final CompletableFuture<Movie> details;
 
     public SearchItem(
             int id,
             String title,
             String release_date,
             double vote_average,
-            Supplier<Movie> details
+            CompletableFuture<Movie> details
     ) {
         this.id = id;
         this.title = title;
@@ -60,8 +61,8 @@ public class SearchItem {
         return vote_average;
     }
 
-    public Movie getDetails() {
-        return details.get();
+    public CompletableFuture<Movie> getDetails() {
+        return details;
     }
 
     @Override
