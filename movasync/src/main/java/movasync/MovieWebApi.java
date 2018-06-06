@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Miguel Gamboa
@@ -75,52 +76,49 @@ public class MovieWebApi {
     /**
      * E.g. https://api.themoviedb.org/3/search/movie?api_key=***************&query=war+games&page=1
      */
-    public SearchItemDto[] search(String title, int page) {
+    public CompletableFuture<SearchItemDto[]> search(String title, int page) {
         String path = MessageFormat.format(MOVIE_DB_HOST + MOVIE_DB_SEARCH, API_KEY, title.replace(" ", "+"), page);
-        String json = getJsonBody(path);
-        SearchDto searchDto = gson.fromJson(json, SearchDto.class);
-        return searchDto.getResults();
+        return httpGet(path, SearchDto.class)
+                .thenApply(SearchDto::getResults);
     }
 
     /**
      * E.g. https://api.themoviedb.org/3/movie/860?api_key=***************
      */
-    public MovieDto getMovie(int id) {
+    public CompletableFuture<MovieDto> getMovie(int id) {
         String path = MessageFormat.format(MOVIE_DB_HOST + MOVIE_DB_MOVIE, API_KEY, id);
-        String json = getJsonBody(path);
-        return gson.fromJson(json, MovieDto.class);
+        return httpGet(path, MovieDto.class);
     }
 
     /**
      * E.g. https://api.themoviedb.org/3/movie/860/credits?api_key=***************
      */
-    public MovieCreditsDto getMovieCredits(int movieId) {
+    public CompletableFuture<MovieCreditsDto> getMovieCredits(int movieId) {
         String path = MessageFormat.format(MOVIE_DB_HOST + MOVIE_DB_MOVIE_CREDITS, API_KEY, movieId);
-        String json = getJsonBody(path);
-        return gson.fromJson(json, MovieCreditsDto.class);
+        return httpGet(path, MovieCreditsDto.class);
     }
 
     /**
      * E.g. https://api.themoviedb.org/3/person/4756?api_key=***************
      */
-    public PersonDto getPerson(int personId) {
+    public CompletableFuture<PersonDto> getPerson(int personId) {
         String path = MessageFormat.format(MOVIE_DB_HOST + MOVIE_DB_PERSON, API_KEY, personId);
-        String json = getJsonBody(path);
-        return gson.fromJson(json, PersonDto.class);
+        return httpGet(path, PersonDto.class);
     }
 
     /**
      * E.g. https://api.themoviedb.org/3/person/4756/movie_credits?api_key=***************
      */
-    public SearchItemDto[] getPersonCreditsCast(int personId) {
+    public CompletableFuture<SearchItemDto[]> getPersonCreditsCast(int personId) {
         String path = MessageFormat.format(MOVIE_DB_HOST + MOVIE_DB_PERSON_CREDITS, API_KEY, personId);
-        String json = getJsonBody(path);
-        PersonCreditsDto personCreditsDto = gson.fromJson(json, PersonCreditsDto.class);
-        return personCreditsDto.getCast();
+        return httpGet(path, PersonCreditsDto.class)
+                .thenApply(PersonCreditsDto::getCast);
     }
 
-    private String getJsonBody(String path) {
-        return req.getBody(path).get().reduce("", (prev, curr) -> prev + curr);
+    private <T> CompletableFuture<T> httpGet(String path, Class<T> klass) {
+        return req
+                .getBody(path)
+                .thenApply(body -> gson.fromJson(body, klass));
     }
 
 }

@@ -17,16 +17,15 @@
 
 package util;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * @author Miguel Gamboa
  *         created on 03-03-2017
  */
 public interface IRequest {
-    Supplier<Stream<String>> getBody(String path);
+    CompletableFuture<String> getBody(String path);
 
     public default IRequest compose(Consumer<String> cons) {
         return path -> {

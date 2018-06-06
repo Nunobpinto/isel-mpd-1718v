@@ -4,8 +4,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+import java.util.concurrent.CompletableFuture;
+
 
 public class WriteFileDecorator implements IRequest {
     private IRequest request;
@@ -15,10 +15,10 @@ public class WriteFileDecorator implements IRequest {
     }
 
     @Override
-    public Supplier<Stream<String>> getBody(String path) {
-        Supplier<Stream<String>> body = request.getBody(path);
+    public CompletableFuture<String> getBody(String path) {
+        CompletableFuture<String> body = request.getBody(path);
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(createPath(path)))) {
-            writer.write(body.get().reduce("", (prev, curr) -> prev + curr));
+            //writer.write(body.get().reduce("", (prev, curr) -> prev + curr));
         } catch (IOException e) {
             e.printStackTrace();
         }
