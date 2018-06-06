@@ -19,7 +19,6 @@ package movasync;
 
 import movasync.dto.*;
 import movasync.model.SearchItem;
-import movlazy.dto.*;
 import movasync.model.Credit;
 import movasync.model.Person;
 import movasync.model.Movie;

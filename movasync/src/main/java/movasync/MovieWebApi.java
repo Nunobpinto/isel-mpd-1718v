@@ -18,7 +18,6 @@
 package movasync;
 
 import movasync.dto.*;
-import movlazy.dto.*;
 import util.IRequest;
 
 import com.google.gson.Gson;
