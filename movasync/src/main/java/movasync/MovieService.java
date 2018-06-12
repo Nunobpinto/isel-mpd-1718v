@@ -77,22 +77,29 @@ public class MovieService {
         return creditCache.computeIfAbsent(movId, id ->
                 Cache.of(
                         () -> {
-                            MovieCreditsDto dto = movieWebApi.getMovieCredits(id);
-                            Stream<Credit> castStream = Stream.of(dto.getCast()).map(item -> parseCasttItemDto(item, movId));
-                            Stream<Credit> crewStream = Stream.of(dto.getCrew()).map(item -> parseCrewItemDto(item, movId));
-                            return joinSeq(
-                                    castStream,
-                                    crewStream.collect(Collectors.toList()),
-                                    (item, list) -> {
-                                        Optional<Credit> optionalCredit = list.stream().filter(i -> i.getId() == item.getId()).findFirst();
-                                        if (optionalCredit.isPresent()) {
-                                            Credit credit = optionalCredit.get();
-                                            item.setDepartment(credit.getDepartment());
-                                            item.setJob(credit.getJob());
-                                            list.remove(credit);
-                                        }
-                                    }
-                            );
+                            CompletableFuture<MovieCreditsDto> dto = movieWebApi.getMovieCredits(id);
+                            CompletableFuture<Stream<Credit>> crewStream = dto
+                                    .thenApply(MovieCreditsDto::getCrew)
+                                    .thenApply(Stream::of)
+                                    .thenApply(strm -> strm.map(item -> parseCrewItemDto(item, movId)));
+                            return dto
+                                    .thenApply(MovieCreditsDto::getCast)
+                                    .thenApply(Stream::of)
+                                    .thenApply(strm -> strm.map(item -> parseCastItemDto(item, movId)))
+                                    .thenApply(strm -> joinSeq(
+                                            strm,
+                                            crewStream.join().collect(Collectors.toList()),
+                                            (item, list) -> {
+                                                Optional<Credit> optionalCredit = list.stream().filter(i -> i.getId() == item.getId()).findFirst();
+                                                if (optionalCredit.isPresent()) {
+                                                    Credit credit = optionalCredit.get();
+                                                    item.setDepartment(credit.getDepartment());
+                                                    item.setJob(credit.getJob());
+                                                    list.remove(credit);
+                                                }
+                                            }
+                                    ))
+                                    .thenApply(strm -> strm.collect(Collectors.toList()));
                         }
                 )
         );
@@ -138,7 +145,7 @@ public class MovieService {
         );
     }
 
-    private Credit parseCasttItemDto(CastItemDto dto, int movId) {
+    private Credit parseCastItemDto(CastItemDto dto, int movId) {
         return new Credit(
                 dto.getId(),
                 movId,
