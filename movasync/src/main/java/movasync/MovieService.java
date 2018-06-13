@@ -51,13 +51,24 @@ public class MovieService {
     }
 
     public CompletableFuture<Stream<SearchItem>> search(String name) {
-        return () ->
-                takeWhile(
-                        Stream.iterate(1, prev -> ++prev).map(page -> movieWebApi.search(name, page)),
-                        movs -> movs.length != 0
-                )
-                        .flatMap(Stream::of)
-                        .map(this::parseSearchItemDto);
+        return movieWebApi.search(name, 1)
+                .thenApply(searchDto -> {
+                    int totalPages = searchDto.getTotalPages();
+                    List<CompletableFuture<SearchItemDto[]>> searchCp = new ArrayList<>();
+                    searchCp.add(CompletableFuture.completedFuture(searchDto.getResults()));
+                    int i = 2;
+                    while (i <= totalPages)
+                        searchCp.add(movieWebApi.search(name, i++).thenApply(SearchDto::getResults));
+                    return searchCp;
+                })
+                .thenApply(Collection::stream)
+                .thenApply(stream -> stream.map(CompletableFuture::join))
+                .thenApply(stream -> stream.flatMap(searchItemDtos -> {
+                    List<SearchItem> res = new ArrayList<>();
+                    for (SearchItemDto searchItemDto1 : searchItemDtos)
+                        res.add(parseSearchItemDto(searchItemDto1));
+                    return res.stream();
+                }));
     }
 
     public CompletableFuture<Stream<SearchItem>> getPersonCreditsCast(int actorId) {
@@ -69,46 +80,43 @@ public class MovieService {
     public CompletableFuture<Movie> getMovie(int movId) {
         return movieCache.computeIfAbsent(movId, id ->
                 movieWebApi.getMovie(id)
-                    .thenApply(this::parseMovieDto)
+                        .thenApply(this::parseMovieDto)
         );
     }
 
     public CompletableFuture<Stream<Credit>> getMovieCredits(int movId) {
-        return creditCache.computeIfAbsent(movId, id ->
-                Cache.of(
-                        () -> {
-                            CompletableFuture<MovieCreditsDto> dto = movieWebApi.getMovieCredits(id);
-                            CompletableFuture<Stream<Credit>> crewStream = dto
-                                    .thenApply(MovieCreditsDto::getCrew)
-                                    .thenApply(Stream::of)
-                                    .thenApply(strm -> strm.map(item -> parseCrewItemDto(item, movId)));
-                            return dto
-                                    .thenApply(MovieCreditsDto::getCast)
-                                    .thenApply(Stream::of)
-                                    .thenApply(strm -> strm.map(item -> parseCastItemDto(item, movId)))
-                                    .thenApply(strm -> joinSeq(
-                                            strm,
-                                            crewStream.join().collect(Collectors.toList()),
-                                            (item, list) -> {
-                                                Optional<Credit> optionalCredit = list.stream().filter(i -> i.getId() == item.getId()).findFirst();
-                                                if (optionalCredit.isPresent()) {
-                                                    Credit credit = optionalCredit.get();
-                                                    item.setDepartment(credit.getDepartment());
-                                                    item.setJob(credit.getJob());
-                                                    list.remove(credit);
-                                                }
-                                            }
-                                    ))
-                                    .thenApply(strm -> strm.collect(Collectors.toList()));
-                        }
-                )
-        );
+        return creditCache.computeIfAbsent(movId, id -> {
+                    CompletableFuture<MovieCreditsDto> movieCreditsDto = movieWebApi.getMovieCredits(id);
+                    CompletableFuture<Stream<Credit>> crewStream = movieCreditsDto
+                            .thenApply(MovieCreditsDto::getCrew)
+                            .thenApply(Stream::of)
+                            .thenApply(strm -> strm.map(item -> parseCrewItemDto(item, movId)));
+                    return movieCreditsDto
+                            .thenApply(MovieCreditsDto::getCast)
+                            .thenApply(Stream::of)
+                            .thenApply(stream -> stream.map(item -> parseCastItemDto(item, movId)))
+                            .thenApply(stream -> joinSeq(
+                                    stream,
+                                    crewStream.join().collect(Collectors.toList()),
+                                    (item, list) -> {
+                                        Optional<Credit> optionalCredit = list.stream().filter(i -> i.getId() == item.getId()).findFirst();
+                                        if (optionalCredit.isPresent()) {
+                                            Credit credit = optionalCredit.get();
+                                            item.setDepartment(credit.getDepartment());
+                                            item.setJob(credit.getJob());
+                                            list.remove(credit);
+                                        }
+                                    }
+                            ))
+                            .thenApply(stream -> stream.collect(Collectors.toList()));
+                }
+        ).thenApply(Collection::stream);
     }
 
     public CompletableFuture<Person> getPerson(int actorId) {
         return personCache.computeIfAbsent(actorId, id ->
                 movieWebApi.getPerson(actorId)
-                .thenApply(this::parsePersonDto)
+                        .thenApply(this::parsePersonDto)
         );
     }
 
@@ -140,8 +148,7 @@ public class MovieService {
                 dto.getOverview(),
                 dto.getVoteAverage(),
                 dto.getReleaseDate(),
-                this.getMovieCredits(dto.getId())
-
+                getMovieCredits(dto.getId())
         );
     }
 
@@ -153,7 +160,7 @@ public class MovieService {
                 null,
                 dto.getCharacter(),
                 dto.getName(),
-                 getPerson(dto.getId())
+                getPerson(dto.getId())
         );
     }
 

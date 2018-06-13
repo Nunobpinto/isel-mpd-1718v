@@ -76,10 +76,9 @@ public class MovieWebApi {
     /**
      * E.g. https://api.themoviedb.org/3/search/movie?api_key=***************&query=war+games&page=1
      */
-    public CompletableFuture<SearchItemDto[]> search(String title, int page) {
+    public CompletableFuture<SearchDto> search(String title, int page) {
         String path = MessageFormat.format(MOVIE_DB_HOST + MOVIE_DB_SEARCH, API_KEY, title.replace(" ", "+"), page);
-        return httpGet(path, SearchDto.class)
-                .thenApply(SearchDto::getResults);
+        return httpGet(path, SearchDto.class);
     }
 
     /**
