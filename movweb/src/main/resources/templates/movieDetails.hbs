@@ -1,0 +1,25 @@
+<html>
+<head>
+    <title> YARMA </title>
+    <link rel="icon" type="image/icon" href="/public/movies.ico"/>
+    <!--<link rel="stylesheet" href="/stylesheets/style.css"/>-->
+    <link rel="stylesheet" href="/public/stylesheets/bootstrap.min.css"/>
+</head>
+<body>
+<div class="container">
+    <h1 align="center"><strong> {{movie.originalTitle}} </strong></h1>
+    <hr>
+    <div class="row mt-4 mb-4">
+        <div class="col align-self-center text-center">
+            <img src='http://image.tmdb.org/t/p/w185//{{movie.posterPath}}'>
+        </div>
+        <div class="col mb-auto mt-auto">
+            <ul id="movieSpecs">
+                <li><strong>Release Date: </strong> {{movie.releaseDate}} </li>
+                <li><strong>Overview: </strong> {{movie.overview}} </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

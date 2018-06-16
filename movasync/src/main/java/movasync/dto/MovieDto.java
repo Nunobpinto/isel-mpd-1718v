@@ -28,14 +28,16 @@ public class MovieDto {
     private final String overview;
     private final double vote_average;
     private final String release_date;
+    private final String poster_path;
 
-    public MovieDto(int id, String original_title, String tagline, String overview, double vote_average, String release_date) {
+    public MovieDto(int id, String original_title, String tagline, String overview, double vote_average, String release_date, String poster_path) {
         this.id = id;
         this.original_title = original_title;
         this.tagline = tagline;
         this.overview = overview;
         this.vote_average = vote_average;
         this.release_date = release_date;
+        this.poster_path = poster_path;
     }
 
     public int getId() {
@@ -61,6 +63,8 @@ public class MovieDto {
     public String getReleaseDate() {
         return release_date;
     }
+
+    public String getPoster_path() { return poster_path; }
 
     @Override
     public String toString() {

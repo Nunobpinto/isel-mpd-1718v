@@ -22,18 +22,14 @@ import movasync.model.SearchItem;
 import movasync.model.Credit;
 import movasync.model.Person;
 import movasync.model.Movie;
-import util.Cache;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static util.QueriesSpliterator.joinSeq;
-import static util.QueriesSpliterator.takeWhile;
 
 /**
  * @author Miguel Gamboa
@@ -61,6 +57,7 @@ public class MovieService {
                         searchCp.add(movieWebApi.search(name, i++));
                     return searchCp.stream();
                 })
+                .thenApply(stream -> stream.collect(Collectors.toList()).stream())
                 .thenApply(stream -> stream.map(CompletableFuture::join))
                 .thenApply(stream -> stream.flatMap(searchDto -> Arrays.stream(searchDto.getResults()).map(this::parseSearchItemDto)));
     }
@@ -142,6 +139,7 @@ public class MovieService {
                 dto.getOverview(),
                 dto.getVoteAverage(),
                 dto.getReleaseDate(),
+                dto.getPoster_path(),
                 getMovieCredits(dto.getId())
         );
     }

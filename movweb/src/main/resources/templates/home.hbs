@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> YARMA </title>
+    <link rel="icon" type="image/icon" href="/public/movies.ico"/>
+    <!--<link rel="stylesheet" href="/stylesheets/style.css"/>-->
+    <link rel="stylesheet" href="/public/stylesheets/bootstrap.min.css"/>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div id="jumbotron-homepage" class="jumbotron">
+                <h1 id="homeTitle">Welcome to Yet Another Reactive Movie Application</h1>
+                <p> Here you can find your favourite Movies </p>
+                <div>
+                    <form id="searchMovie" class="form-inline" action="/movies" method="get">
+                        <input class="form-control mr-sm-2" type="text" name="name" placeholder="Search a Movie:"
+                               required>
+                        <button class="btn btn-info" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

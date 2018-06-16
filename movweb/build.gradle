@@ -16,6 +16,7 @@ dependencies {
 
     compile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.25'
     compile 'io.vertx:vertx-web:3.5.1'
+    compile 'io.vertx:vertx-web-templ-handlebars:3.5.1'
 }
 
 // Define the main class for the application

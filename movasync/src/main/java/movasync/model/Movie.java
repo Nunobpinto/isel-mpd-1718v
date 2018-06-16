@@ -1,7 +1,6 @@
 package movasync.model;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 
@@ -16,6 +15,7 @@ public class Movie {
     private final String overview;
     private final double vote_average;
     private final String release_date;
+    private final String poster_path;
     private final CompletableFuture<Stream<Credit>> credits;
 
     public Movie(
@@ -25,7 +25,7 @@ public class Movie {
             String overview,
             double vote_average,
             String release_date,
-            CompletableFuture<Stream<Credit>> credits)
+            String poster_path, CompletableFuture<Stream<Credit>> credits)
     {
         this.id = id;
         this.original_title = original_title;
@@ -33,6 +33,8 @@ public class Movie {
         this.overview = overview;
         this.vote_average = vote_average;
         this.release_date = release_date;
+        this.poster_path = poster_path;
+
         this.credits = credits;
     }
 
@@ -60,9 +62,12 @@ public class Movie {
         return release_date;
     }
 
+    public String getPosterPath() { return poster_path; }
+
     public CompletableFuture<Stream<Credit>> getCredits() {
         return credits;
     }
+
 
     @Override
     public String toString() {
