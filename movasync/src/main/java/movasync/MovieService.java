@@ -54,21 +54,15 @@ public class MovieService {
         return movieWebApi.search(name, 1)
                 .thenApply(searchDto -> {
                     int totalPages = searchDto.getTotalPages();
-                    List<CompletableFuture<SearchItemDto[]>> searchCp = new ArrayList<>();
-                    searchCp.add(CompletableFuture.completedFuture(searchDto.getResults()));
+                    List<CompletableFuture<SearchDto>> searchCp = new ArrayList<>();
+                    searchCp.add(CompletableFuture.completedFuture(searchDto));
                     int i = 2;
                     while (i <= totalPages)
-                        searchCp.add(movieWebApi.search(name, i++).thenApply(SearchDto::getResults));
-                    return searchCp;
+                        searchCp.add(movieWebApi.search(name, i++));
+                    return searchCp.stream();
                 })
-                .thenApply(Collection::stream)
                 .thenApply(stream -> stream.map(CompletableFuture::join))
-                .thenApply(stream -> stream.flatMap(searchItemDtos -> {
-                    List<SearchItem> res = new ArrayList<>();
-                    for (SearchItemDto searchItemDto1 : searchItemDtos)
-                        res.add(parseSearchItemDto(searchItemDto1));
-                    return res.stream();
-                }));
+                .thenApply(stream -> stream.flatMap(searchDto -> Arrays.stream(searchDto.getResults()).map(this::parseSearchItemDto)));
     }
 
     public CompletableFuture<Stream<SearchItem>> getPersonCreditsCast(int actorId) {
