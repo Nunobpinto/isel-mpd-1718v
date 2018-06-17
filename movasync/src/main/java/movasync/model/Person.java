@@ -1,7 +1,6 @@
 package movasync.model;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -14,14 +13,16 @@ public class Person {
     private final CompletableFuture<Stream<SearchItem>> movies;
     private final String placeOfBirth;
     private final String biography;
+    private final String profilePath;
 
 
-    public Person(int id, String name, String placeOfBirth, String biography, CompletableFuture<Stream<SearchItem>> movies) {
+    public Person(int id, String name, String placeOfBirth, String biography, CompletableFuture<Stream<SearchItem>> movies, String profilePath) {
         this.id = id;
         this.name = name;
         this.movies = movies;
         this.placeOfBirth = placeOfBirth;
         this.biography = biography;
+        this.profilePath = profilePath;
     }
 
     public int getId() {
@@ -39,6 +40,8 @@ public class Person {
     public String getBiography() {
         return biography;
     }
+
+    public String getProfilePath() { return profilePath; }
 
     public CompletableFuture<Stream<SearchItem>> getMovies() {
         return movies;

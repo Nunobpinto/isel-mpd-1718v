@@ -117,7 +117,8 @@ public class MovieService {
                 dto.getName(),
                 dto.getPlace_of_birth(),
                 dto.getBiography(),
-                getPersonCreditsCast(dto.getId())
+                getPersonCreditsCast(dto.getId()),
+                dto.getProfilePath()
         );
     }
 

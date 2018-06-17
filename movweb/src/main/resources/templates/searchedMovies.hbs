@@ -4,10 +4,28 @@
     <link rel="icon" type="image/icon" href="/public/movies.ico"/>
     <!--<link rel="stylesheet" href="/stylesheets/style.css"/>-->
     <link rel="stylesheet" href="/public/stylesheets/bootstrap.min.css"/>
+
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
-    <h1 align="center"> Results: </h1>
+    <h1 align="center"> Results For: {{movieName}} </h1>
     <hr>
     <table class="table">
         <tr>
@@ -17,9 +35,9 @@
         </tr>
         {{#each movieList}}
             <tr>
-                <td><a href='/movies/{{id}}'>{{original_title}}</a></td>
-                <td>{{release_date}}</td>
-                <td>{{vote_average}}</td>
+                <td><a href='/movies/{{id}}'>{{title}}</a></td>
+                <td>{{releaseDate}}</td>
+                <td>{{voteAverage}}</td>
             </tr>
         {{/each}}
     </table>

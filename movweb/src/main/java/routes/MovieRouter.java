@@ -5,17 +5,12 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.FaviconHandler;
-import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.templ.TemplateEngine;
 import io.vertx.ext.web.templ.HandlebarsTemplateEngine;
 import movasync.MovieService;
 import movasync.MovieWebApi;
 import util.HttpRequest;
-
-import java.security.cert.CollectionCertStoreParameters;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class MovieRouter {
 
@@ -33,7 +28,6 @@ public class MovieRouter {
     public static Router router(Vertx vertx, MovieService movie) {
         Router router = Router.router(vertx);
         MovieRouter handlers = new MovieRouter(movie);
-        //router.route().handler(FaviconHandler.create("movies.ico"));
         router.route("/home").handler(handlers::home);
         router.route("/movies").handler(handlers::movieSearch);
         router.route("/movies/:id").handler(handlers::movieDetails);
@@ -61,8 +55,9 @@ public class MovieRouter {
         String name = req.getParam("name");
         movie
                 .search(name)
-                .thenAccept(strm -> {
-                    routingContext.put("movieList", strm.toArray());
+                .thenAccept(searched -> {
+                    routingContext.put("movieName", name);
+                    routingContext.put("movieList", searched.collect(Collectors.toList()));
                     engine.render(routingContext, "templates", "/searchedMovies.hbs", view -> {
                         if (view.succeeded())
                             res.end(view.result());
@@ -79,16 +74,12 @@ public class MovieRouter {
         movie
                 .getMovie(movieId)
                 .thenAccept(m -> {
-                    m.getCredits()
-                            .thenAccept(strmCredits -> {
-                                routingContext.put("movie", m);
-                                routingContext.put("movieCredits", strmCredits.collect(Collectors.toList()));
-                                engine.render(routingContext, "templates", "/movieDetails.hbs", view -> {
-                                    if (view.succeeded())
-                                        res.end(view.result());
-                                    else routingContext.fail(view.cause());
-                                });
-                            });
+                    routingContext.put("movie", m);
+                    engine.render(routingContext, "templates", "/movieDetails.hbs", view -> {
+                        if (view.succeeded())
+                            res.end(view.result());
+                        else routingContext.fail(view.cause());
+                    });
                 });
     }
 
@@ -100,7 +91,8 @@ public class MovieRouter {
         movie
                 .getMovieCredits(movieId)
                 .thenAccept(credits -> {
-                    routingContext.put("credits", credits);
+                    routingContext.put("movieId", movieId);
+                    routingContext.put("credits", credits.toArray());
                     engine.render(routingContext, "templates", "/movieCredits.hbs", view -> {
                         if (view.succeeded())
                             res.end(view.result());
@@ -117,16 +109,13 @@ public class MovieRouter {
         movie
                 .getPerson(personId)
                 .thenAccept(person -> {
-                    person.getMovies().thenAccept(strmMovies -> {
                         routingContext.put("person", person);
-                        routingContext.put("personMovies", strmMovies.collect(Collectors.toList()));
                         engine.render(routingContext, "templates", "/personDetails.hbs", view -> {
                             if (view.succeeded())
                                 res.end(view.result());
                             else routingContext.fail(view.cause());
                         });
                     });
-                });
     }
 
     private void personMovies(RoutingContext routingContext) {
@@ -137,7 +126,8 @@ public class MovieRouter {
         movie
                 .getPersonCreditsCast(personId)
                 .thenAccept(personMovies -> {
-                    routingContext.put("personMovies", personMovies);
+                    routingContext.put("personId", personId);
+                    routingContext.put("personMovies", personMovies.collect(Collectors.toList()));
                     engine.render(routingContext, "templates", "/personMovies.hbs", view -> {
                         if (view.succeeded())
                             res.end(view.result());

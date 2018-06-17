@@ -15,6 +15,7 @@ public class WebApp {
         Vertx vertx = Vertx.vertx();
         final RateLimiter rateLimiter = RateLimiter.create(10.0);
         IRequest httpRequest = new HttpRequest()
+                .compose(System.out::println)
                 .compose(__-> rateLimiter.acquire());
         Router router = MovieRouter.router(vertx, new MovieService(new MovieWebApi(httpRequest)));
 

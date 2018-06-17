@@ -1,0 +1,46 @@
+<html>
+<head>
+    <title> YARMA </title>
+    <link rel="icon" type="image/icon" href="/public/movies.ico"/>
+    <!--<link rel="stylesheet" href="/stylesheets/style.css"/>-->
+    <link rel="stylesheet" href="/public/stylesheets/bootstrap.min.css"/>
+
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 align="center">Movie Participations of Person with Id: {{personId}} </h1>
+    <hr>
+    <table class="table">
+        <tr>
+            <th>Title</th>
+            <th>Release Date</th>
+            <th>Vote Average</th>
+        </tr>
+        {{#each personMovies}}
+            <tr>
+                <td><a href='/movies/{{id}}'>{{title}}</a></td>
+                <td>{{releaseDate}}</td>
+                <td>{{voteAverage}}</td>
+            </tr>
+        {{/each}}
+    </table>
+</div>
+</body>
+</html>

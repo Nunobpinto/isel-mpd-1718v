@@ -1,0 +1,50 @@
+<html>
+<head>
+    <title> YARMA </title>
+    <link rel="icon" type="image/icon" href="/public/movies.ico"/>
+    <!--<link rel="stylesheet" href="/stylesheets/style.css"/>-->
+    <link rel="stylesheet" href="/public/stylesheets/bootstrap.min.css"/>
+
+    <style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 align="center"> Credits of Movie with Id: {{movieId}}</h1>
+    <hr>
+    <table class="table">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Character</th>
+            <th>Department</th>
+            <th>Job</th>
+        </tr>
+        {{#each credits}}
+            <tr>
+                <td><a href='/person/{{id}}'>{{id}}</a></td>
+                <td>{{name}}</td>
+                <td>{{character}}</td>
+                <td>{{department}}</td>
+                <td>{{job}}</td>
+            </tr>
+        {{/each}}
+    </table>
+</div>
+</body>
+</html>

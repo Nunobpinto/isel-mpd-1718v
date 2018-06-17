@@ -18,7 +18,6 @@
 package movasync.model;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 /**
  * @author Miguel Gamboa
@@ -27,21 +26,21 @@ import java.util.function.Supplier;
 public class SearchItem {
     private final int id;
     private final String title;
-    private final String release_date;
-    private final double vote_average;
+    private final String releaseDate;
+    private final double voteAverage;
     private final CompletableFuture<Movie> details;
 
     public SearchItem(
             int id,
             String title,
-            String release_date,
-            double vote_average,
+            String releaseDate,
+            double voteAverage,
             CompletableFuture<Movie> details
     ) {
         this.id = id;
         this.title = title;
-        this.release_date = release_date;
-        this.vote_average = vote_average;
+        this.releaseDate = releaseDate;
+        this.voteAverage = voteAverage;
         this.details = details;
     }
 
@@ -54,11 +53,11 @@ public class SearchItem {
     }
 
     public String getReleaseDate() {
-        return release_date;
+        return releaseDate;
     }
 
     public double getVoteAverage() {
-        return vote_average;
+        return voteAverage;
     }
 
     public CompletableFuture<Movie> getDetails() {
@@ -70,8 +69,8 @@ public class SearchItem {
         return "SearchItem{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", release_date='" + release_date + '\'' +
-                ", vote_average=" + vote_average +
+                ", releaseDate='" + releaseDate + '\'' +
+                ", voteAverage=" + voteAverage +
                 ", details=" + details +
                 '}';
     }

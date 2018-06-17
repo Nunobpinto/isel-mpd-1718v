@@ -28,15 +28,17 @@ public class PersonDto {
     private final String name;
     private final String place_of_birth;
     private final String biography;
+    private final String profile_path;
     private final Supplier<Stream<SearchItem>> movies;
 
-    public PersonDto(int id, String birthday, String name, String place_of_birth, String biography, Supplier<Stream<SearchItem>> movies) {
+    public PersonDto(int id, String birthday, String name, String place_of_birth, String biography, Supplier<Stream<SearchItem>> movies, String profile_path) {
         this.id = id;
         this.birthday = birthday;
         this.name = name;
         this.place_of_birth = place_of_birth;
         this.biography = biography;
         this.movies = movies;
+        this.profile_path = profile_path;
     }
 
     public int getId() {
@@ -58,6 +60,8 @@ public class PersonDto {
     public String getBirthday() {
         return birthday;
     }
+
+    public String getProfilePath() { return profile_path; }
 
     public Supplier<Stream<SearchItem>> getMovies() {
         return movies;

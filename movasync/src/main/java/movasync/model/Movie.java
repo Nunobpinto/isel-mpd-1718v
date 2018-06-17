@@ -10,30 +10,30 @@ import java.util.stream.Stream;
  */
 public class Movie {
     private final int id;
-    private final String original_title;
+    private final String originalTitle;
     private final String tagline;
     private final String overview;
-    private final double vote_average;
-    private final String release_date;
-    private final String poster_path;
+    private final double voteAverage;
+    private final String releaseDate;
+    private final String posterPath;
     private final CompletableFuture<Stream<Credit>> credits;
 
     public Movie(
             int id,
-            String original_title,
+            String originalTitle,
             String tagline,
             String overview,
-            double vote_average,
-            String release_date,
-            String poster_path, CompletableFuture<Stream<Credit>> credits)
+            double voteAverage,
+            String releaseDate,
+            String posterPath, CompletableFuture<Stream<Credit>> credits)
     {
         this.id = id;
-        this.original_title = original_title;
+        this.originalTitle = originalTitle;
         this.tagline = tagline;
         this.overview = overview;
-        this.vote_average = vote_average;
-        this.release_date = release_date;
-        this.poster_path = poster_path;
+        this.voteAverage = voteAverage;
+        this.releaseDate = releaseDate;
+        this.posterPath = posterPath;
 
         this.credits = credits;
     }
@@ -43,7 +43,7 @@ public class Movie {
     }
 
     public String getOriginalTitle() {
-        return original_title;
+        return originalTitle;
     }
 
     public String getTagline() {
@@ -55,14 +55,14 @@ public class Movie {
     }
 
     public double getVoteAverage() {
-        return vote_average;
+        return voteAverage;
     }
 
     public String getReleaseDate() {
-        return release_date;
+        return releaseDate;
     }
 
-    public String getPosterPath() { return poster_path; }
+    public String getPosterPath() { return posterPath; }
 
     public CompletableFuture<Stream<Credit>> getCredits() {
         return credits;
@@ -73,11 +73,11 @@ public class Movie {
     public String toString() {
         return "Movie{" +
                 "id=" + id +
-                ", original_title='" + original_title + '\'' +
+                ", originalTitle='" + originalTitle + '\'' +
                 ", tagline='" + tagline + '\'' +
                 ", overview='" + overview + '\'' +
-                ", vote_average=" + vote_average +
-                ", release_date='" + release_date + '\'' +
+                ", voteAverage=" + voteAverage +
+                ", releaseDate='" + releaseDate + '\'' +
                 '}';
     }
 }
