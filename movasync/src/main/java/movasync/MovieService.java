@@ -22,14 +22,18 @@ import movasync.model.SearchItem;
 import movasync.model.Credit;
 import movasync.model.Person;
 import movasync.model.Movie;
+import util.Cache;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static util.QueriesSpliterator.joinSeq;
+import static util.QueriesSpliterator.takeWhile;
 
 /**
  * @author Miguel Gamboa
@@ -50,14 +54,13 @@ public class MovieService {
         return movieWebApi.search(name, 1)
                 .thenApply(searchDto -> {
                     int totalPages = searchDto.getTotalPages();
-                    List<CompletableFuture<SearchDto>> searchCp = new ArrayList<>();
+                    List<CompletableFuture<SearchDto>> searchCp = new ArrayList<>(totalPages);
                     searchCp.add(CompletableFuture.completedFuture(searchDto));
                     int i = 2;
                     while (i <= totalPages)
                         searchCp.add(movieWebApi.search(name, i++));
                     return searchCp.stream();
                 })
-                .thenApply(stream -> stream.collect(Collectors.toList()).stream())
                 .thenApply(stream -> stream.map(CompletableFuture::join))
                 .thenApply(stream -> stream.flatMap(searchDto -> Arrays.stream(searchDto.getResults()).map(this::parseSearchItemDto)));
     }

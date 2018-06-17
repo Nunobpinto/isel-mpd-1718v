@@ -17,12 +17,15 @@ public class WriteFileDecorator implements IRequest {
     @Override
     public CompletableFuture<String> getBody(String path) {
         CompletableFuture<String> body = request.getBody(path);
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(createPath(path)))) {
-            //writer.write(body.get().reduce("", (prev, curr) -> prev + curr));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return body;
+        return body
+                .whenComplete((result, throwable) -> {
+                    try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(createPath(path)))) {
+                        writer.write(result);
+                        System.out.println("FILE WRITTEN --> " + path);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     private String createPath(String path) {
@@ -34,6 +37,6 @@ public class WriteFileDecorator implements IRequest {
                 .replace(':', '-')
                 .replace('/', '-')
                 .concat(".json");
-        return "D:\\Joao\\ISEL\\8semestre\\MPD\\mpd1718v\\movlazy\\src\\test\\resources\\" + res;
+        return "C:\\Users\\nunob\\Documents\\Projetos\\LI41D-G14\\movasync\\src\\test\\resources\\" + res;
     }
 }
