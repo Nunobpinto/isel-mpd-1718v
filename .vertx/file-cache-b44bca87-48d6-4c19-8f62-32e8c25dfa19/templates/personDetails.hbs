@@ -1,0 +1,27 @@
+<html>
+<head>
+    <title> YARMA </title>
+    <link rel="icon" type="image/icon" href="/public/movies.ico"/>
+    <!--<link rel="stylesheet" href="/stylesheets/style.css"/>-->
+    <link rel="stylesheet" href="/public/stylesheets/bootstrap.min.css"/>
+</head>
+<body>
+<div class="container">
+    <h1 align="center"> Details of Person with Id: {{person.id}}</h1>
+    <hr>
+    <div>
+        <div align="center">
+            <img src='http://image.tmdb.org/t/p/w185//{{person.profilePath}}'>
+        </div>
+        <div>
+            <ul>
+                <li><strong>Name: </strong> {{person.name}} </li>
+                <li><strong>Place Of Birth: </strong> {{person.placeOfBirth}} </li>
+                <li><strong>Biography: </strong> {{person.biography}} </li>
+                <li><a href="/person/{{person.id}}/movies">See Movie Participations</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

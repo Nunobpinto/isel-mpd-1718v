@@ -33,7 +33,7 @@ public class FileRequest implements IRequest {
             AsynchronousFileChannel fileChannel =
                     AsynchronousFileChannel.open(src, StandardOpenOption.READ);
 
-            ByteBuffer buffer = ByteBuffer.allocate(20384);
+            ByteBuffer buffer = ByteBuffer.allocate(81536);
 
             fileChannel.read(buffer, 0L, cf, new CompletionHandler<Integer, CompletableFuture<String>>() {
                 @Override

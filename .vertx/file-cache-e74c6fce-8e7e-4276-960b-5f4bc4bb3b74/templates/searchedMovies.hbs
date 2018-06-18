@@ -1,0 +1,28 @@
+<html>
+<head>
+    <title> YARMA </title>
+    <link rel="icon" type="image/icon" href="/public/movies.ico"/>
+    <!--<link rel="stylesheet" href="/stylesheets/style.css"/>-->
+    <link rel="stylesheet" href="/public/stylesheets/bootstrap.min.css"/>
+</head>
+<body>
+<div class="container">
+    <h1 align="center"> Results: </h1>
+    <hr>
+    <table class="table">
+        <tr>
+            <th>Title</th>
+            <th>Release Date</th>
+            <th>Vote Average</th>
+        </tr>
+        {{#each movieList}}
+            <tr>
+                <td><a href='/movies/{{id}}'>{{original_title}}</a></td>
+                <td>{{release_date}}</td>
+                <td>{{vote_average}}</td>
+            </tr>
+        {{/each}}
+    </table>
+</div>
+</body>
+</html>

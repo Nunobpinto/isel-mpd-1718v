@@ -13,7 +13,7 @@ public class WebApp {
 
     public static void main(String[] args) throws Exception {
         Vertx vertx = Vertx.vertx();
-        final RateLimiter rateLimiter = RateLimiter.create(10.0);
+        final RateLimiter rateLimiter = RateLimiter.create(5.0);
         IRequest httpRequest = new HttpRequest()
                 .compose(System.out::println)
                 .compose(__-> rateLimiter.acquire());
